@@ -1,0 +1,18 @@
+<Dialog xmlns="sap.m" title="Edit ToDo">
+	<FlexBox direction="Row" alignItems="Start" justifyContent="SpaceBetween">
+		<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+			<TextArea width="100%" value="{oJSONModel>Content}" rows="2"/>
+			<Label text="Due Date"/>
+			<DatePicker value="{oJSONModel>DueDate}"/>
+			<Label text="Last Changed By"/>
+			<Text text="{oJSONModel>LastChangedBy}"/>
+			<CheckBox text="Done" valueState="Success" class="sapUiTinyMarginEnd" selected="{oJSONModel>Done}" select=".fnToDoDone"/>
+		</VBox>
+	</FlexBox>
+	<beginButton>
+		<Button text="Save" type="Emphasized" press="fnSave"/>
+	</beginButton>
+	<endButton>
+		<Button text="Cancel" press=".fnClose"/>
+	</endButton>
+</Dialog>

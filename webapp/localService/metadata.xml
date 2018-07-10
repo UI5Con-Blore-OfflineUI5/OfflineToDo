@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"
+	xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+	<edmx:DataServices m:DataServiceVersion="2.0">
+		<Schema Namespace="Demo" sap:schema-version="1" xml:lang="en" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+			<EntityType Name="Entity1">
+				<Key>
+					<PropertyRef Name="Id"/>
+				</Key>
+				<Property Name="Id" Nullable="false" Type="Edm.String"/>
+				<Property Name="field1" Nullable="false" Type="Edm.String"/>
+				<Property Name="field2" Nullable="false" Type="Edm.String"/>
+			</EntityType>
+			<EntityType Name="Entity2">
+				<Key>
+					<PropertyRef Name="Id"/>
+				</Key>
+				<Property Name="Id" Nullable="false" Type="Edm.String"/>
+				<Property Name="field1" Nullable="false" Type="Edm.String"/>
+				<Property Name="field2" Nullable="false" Type="Edm.Decimal"/>
+				<Property Name="field3" Nullable="false" Type="Edm.String"/>
+			</EntityType>
+			<EntityType Name="Entity3">
+				<Key>
+					<PropertyRef Name="Id"/>
+				</Key>
+				<Property Name="Id" Nullable="false" Type="Edm.String"/>
+				<Property Name="field1" Type="Edm.Int16"/>
+				<Property Name="field2" Nullable="false" Type="Edm.String"/>
+			</EntityType>
+			<EntityContainer Name="DemoSetContainer" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+				<EntitySet EntityType="Demo.Entity1" Name="Entity1_Set"/>
+				<EntitySet EntityType="Demo.Entity2" Name="Entity2_Set"/>
+				<EntitySet EntityType="Demo.Entity3" Name="Entity3_Set"/>
+			</EntityContainer>
+		</Schema>
+	</edmx:DataServices>
+</edmx:Edmx>

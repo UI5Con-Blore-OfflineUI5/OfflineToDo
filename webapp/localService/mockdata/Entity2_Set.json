@@ -1,0 +1,91 @@
+[{
+	"Id": "Id 1",
+	"field1": "field1 1",
+	"field2": 3097.2,
+	"field3": "field3 1",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 1')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 2",
+	"field1": "field1 2",
+	"field2": 2386.69,
+	"field3": "field3 2",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 2')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 3",
+	"field1": "field1 3",
+	"field2": 1740.45,
+	"field3": "field3 3",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 3')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 4",
+	"field1": "field1 4",
+	"field2": 383.82,
+	"field3": "field3 4",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 4')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 5",
+	"field1": "field1 5",
+	"field2": 9645.46,
+	"field3": "field3 5",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 5')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 6",
+	"field1": "field1 6",
+	"field2": 6410.4,
+	"field3": "field3 6",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 6')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 7",
+	"field1": "field1 7",
+	"field2": 1622.42,
+	"field3": "field3 7",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 7')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 8",
+	"field1": "field1 8",
+	"field2": 2093.31,
+	"field3": "field3 8",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 8')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 9",
+	"field1": "field1 9",
+	"field2": 854.67,
+	"field3": "field3 9",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 9')",
+		"type": "Demo.Entity2"
+	}
+}, {
+	"Id": "Id 10",
+	"field1": "field1 10",
+	"field2": 9821.25,
+	"field3": "field3 10",
+	"__metadata": {
+		"uri": "Entity2_Set('Id 10')",
+		"type": "Demo.Entity2"
+	}
+}]

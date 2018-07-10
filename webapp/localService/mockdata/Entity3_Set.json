@@ -1,0 +1,81 @@
+[{
+	"Id": "Id 1",
+	"field1": 3174,
+	"field2": "field2 1",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 1')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 2",
+	"field1": 5214,
+	"field2": "field2 2",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 2')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 3",
+	"field1": 3501,
+	"field2": "field2 3",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 3')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 4",
+	"field1": 2295,
+	"field2": "field2 4",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 4')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 5",
+	"field1": 6658,
+	"field2": "field2 5",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 5')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 6",
+	"field1": 7483,
+	"field2": "field2 6",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 6')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 7",
+	"field1": 9706,
+	"field2": "field2 7",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 7')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 8",
+	"field1": 8827,
+	"field2": "field2 8",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 8')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 9",
+	"field1": 2759,
+	"field2": "field2 9",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 9')",
+		"type": "Demo.Entity3"
+	}
+}, {
+	"Id": "Id 10",
+	"field1": 4400,
+	"field2": "field2 10",
+	"__metadata": {
+		"uri": "Entity3_Set('Id 10')",
+		"type": "Demo.Entity3"
+	}
+}]

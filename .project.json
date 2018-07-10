@@ -1,0 +1,42 @@
+{
+  "projectType": [
+    "sap.watt.uitools.ide.fiori",
+    "com.sap.webide.hybrid.cordova"
+  ],
+  "generation": [
+    {
+      "templateId": "ui5template.basicSAPUI5ApplicationProject",
+      "templateVersion": "1.32.0",
+      "dateTimeStamp": "Wed, 13 Jan 2016 12:56:36 GMT"
+    },
+    {
+      "templateId": "servicecatalog.connectivityComponent",
+      "templateVersion": "0.0.0",
+      "dateTimeStamp": "Wed, 13 Jan 2016 12:57:19 GMT"
+    },
+    {
+      "templateId": "wysiwygtemplate.quickStart",
+      "templateVersion": "0.0.0",
+      "dateTimeStamp": "Thu, 05 Jul 2018 10:23:08 GMT"
+    }
+  ],
+  "translation": {
+    "translationDomain": "",
+    "supportedLanguages": "en,fr,de",
+    "defaultLanguage": "en",
+    "defaultI18NPropertyFile": "i18n.properties",
+    "resourceModelName": "i18n"
+  },
+  "dataBinding": {
+    "/webapp/view/View1.view.xml": {
+      "entitySet": "Entity1_Set"
+    }
+  },
+  "mockpreview": {
+    "mockUri": "/sap/opu/odata/sap/ZUI5CON_DEMO_TODO_SRV/",
+    "metadataFilePath": "localService/metadata.xml",
+    "loadJSONFiles": true,
+    "loadCustomRequests": false,
+    "mockRequestsFilePath": ""
+  }
+}

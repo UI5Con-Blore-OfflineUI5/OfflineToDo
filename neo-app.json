@@ -1,0 +1,44 @@
+{
+  "welcomeFile": "/webapp/index.html",
+  "routes": [
+    {
+      "path": "/sap/opu/odata",
+      "wattUsage": "odata_abap",
+      "target": {
+        "type": "destination",
+        "name": "GW1",
+        "entryPath": "/sap/opu/odata"
+      },
+      "description": "GW1"
+    },
+    {
+      "path": "/sap/bc/ui5_ui5",
+      "wattUsage": "ui5_execute_abap",
+      "target": {
+        "type": "destination",
+        "name": "GW1",
+        "entryPath": "/sap/bc/ui5_ui5"
+      },
+      "description": "GW1"
+    },
+    {
+      "path": "/resources",
+      "target": {
+        "type": "service",
+        "name": "sapui5",
+        "entryPath": "/resources"
+      },
+      "description": "SAPUI5 Resources"
+    },
+    {
+      "path": "/test-resources",
+      "target": {
+        "type": "service",
+        "name": "sapui5",
+        "entryPath": "/test-resources"
+      },
+      "description": "SAPUI5 Test Resources"
+    }
+  ],
+  "sendWelcomeFileRedirect": true
+}
