@@ -7,16 +7,64 @@ sap.ui.define([
 
 	return Controller.extend("UI5ConOnlineApp.controller.View1", {
 		formatter: formatter,
-		onInit: function() {
-
-		},
+		onInit: function() {},
 		onBeforeRendering: function() {
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
+			var db = new PouchDB('LocalToDos');
+			db.allDocs().then(function(result) {
+				// Promise isn't supported by all browsers; you may want to use bluebird
+				return Promise.all(result.rows.map(function(row) {
+					return db.remove(row.id, row.value.rev);
+				}));
+			}).then(function() {
+				// done!
+			}).catch(function(err) {
+				// error!
+			});
+
+			// db.allDocs({
+			// 			include_docs: true,
+			// 			attachments: true
+			// 		}).then(function(result) {
+			// 		for(var i = 0; i<result.rows.length; i++){
+			// 			result.rows[i].doc["_deleted"] = true;
+			// 			}
+
+			// 		db.bulkDocs(result.rows).then(function(doc) {
+			// 			console.log('Successfully posted a todo!');
+			// 			// handle result
+			// 		}).catch(function(err) {
+			// 			console.log(err);
+			// 		});
+			// 		}).catch(function(err) {
+			// 			console.log(err);
+			// 		});
+
 			oDataModel.read("/ToDos", {
 				success: function(oData) {
-					oJSONModel.setData({
-						"ToDos": oData.results
+					jQuery.each(oData.results, function(index, value) {
+						//value._id = new Date().toISOString();
+						delete value.__metadata;
+
+					});
+
+					db.bulkDocs(oData.results).then(function(result, doc) {
+						console.log('Successfully posted a todo!');
+						// handle result
+					}).catch(function(err) {
+						console.log(err);
+					});
+
+					db.allDocs({
+						include_docs: true,
+						attachments: true
+					}).then(function(result) {
+						oJSONModel.setData({
+							"ToDos": result.rows
+						});
+					}).catch(function(err) {
+						console.log(err);
 					});
 
 				},
@@ -29,7 +77,7 @@ sap.ui.define([
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
 			oJSONModel.setData({
-				"ToDos":null
+				"ToDos": null
 			});
 			oDataModel.read("/ToDos", {
 				success: function(oData) {
@@ -50,8 +98,8 @@ sap.ui.define([
 			}).addStyleClass("sapMH1Style");
 		},
 		handleNewToDoButtonPress: function() {
-		// if (!oToDoDialog) {
-				var oToDoDialog = sap.ui.xmlfragment("UI5ConOnlineApp.fragments.ToDoNew", this.getView().getController());
+			// if (!oToDoDialog) {
+			var oToDoDialog = sap.ui.xmlfragment("UI5ConOnlineApp.fragments.ToDoNew", this.getView().getController());
 			// }
 			//Bind Data
 			this.getView().addDependent(oToDoDialog);
@@ -60,31 +108,30 @@ sap.ui.define([
 			oToDoDialog.open();
 
 		},
-		fnSave:function(evt){
-		var oDataModel = this.getView().getModel();
-		var oJSONModel = this.getView().getModel("oJSONModel");
-		var Content = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
-		var Due = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
-		var Data = {
-		"Content":Content,
-		"DueDate":Due
-		};
-		var array = oJSONModel.getData().ToDos;
-		array.push(Data);
-		oJSONModel.setData({
-			"ToDos": array
-		});
-		oDataModel.create("/ToDos",Data,{
-			success:function(response){
-			
-		
-			}.bind(this),
-			error:function(response){
-				
-			}
-		});
-		evt.getSource().getParent().close();	
-		
+		fnSave: function(evt) {
+			var oDataModel = this.getView().getModel();
+			var oJSONModel = this.getView().getModel("oJSONModel");
+			var Content = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
+			var Due = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
+			var Data = {
+				"Content": Content,
+				"DueDate": Due
+			};
+			var array = oJSONModel.getData().ToDos;
+			array.push(Data);
+			oJSONModel.setData({
+				"ToDos": array
+			});
+			oDataModel.create("/ToDos", Data, {
+				success: function(response) {
+
+				}.bind(this),
+				error: function(response) {
+
+				}
+			});
+			evt.getSource().getParent().close();
+
 		},
 		fnEditToDo: function(evt) {
 			if (!oToDoDialog) {
@@ -114,7 +161,7 @@ sap.ui.define([
 			});
 		},
 		mySuccessHandler: function(Response) {
-		this.oDataCall();
+			this.oDataCall();
 		},
 		myErrorHandler: function(error) {
 

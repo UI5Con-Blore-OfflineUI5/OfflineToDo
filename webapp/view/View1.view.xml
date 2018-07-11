@@ -1,26 +1,31 @@
 <mvc:View controllerName="UI5ConOnlineApp.controller.View1" xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
 	<FlexBox alignItems="Center" justifyContent="Center">
 		<Panel expandable="false" width="400px">
-			<List id="ToDoList" mode="SingleSelectMaster" rememberSelections="false" selectionChange=".fnEditToDo" items="{ path: 'oJSONModel>/ToDos', sorter: { path: 'Content', descending: true }}">
+			<List id="ToDoList" mode="SingleSelectMaster" rememberSelections="false" selectionChange=".fnEditToDo"
+				items="{ path: 'oJSONModel>/ToDos', sorter: { path: 'Content', descending: true }}">
 				<headerToolbar>
 					<Toolbar>
 						<Title text="ToDos" level="H2"/>
 						<ToolbarSpacer/>
+						<NumericContent value="65" valueColor="Error"  icon="sap-icon://synchronize" class="sapUiSmallMargin"
+							press="press"/>
 						<Button icon="sap-icon://add" press="handleNewToDoButtonPress"/>
 					</Toolbar>
 				</headerToolbar>
-				<!--<infoToolbar>-->
-				<!--	<Toolbar active="true">-->
-				<!--		<Label text="Online"/>-->
-				<!--	</Toolbar>-->
-				<!--</infoToolbar>-->
+				<infoToolbar>
+					<Toolbar active="true">
+						<Label text="Online"/>
+						<ToolbarSpacer/>
+						<!--<Button text="Sync"/>-->
+					</Toolbar>
+				</infoToolbar>
 				<CustomListItem>
 					<FlexBox direction="Row" alignItems="Start" justifyContent="SpaceBetween">
 						<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
-							<Title text="{oJSONModel>Content}"/>
-							<ObjectStatus class="sapUiSmallMarginBottom" text="{path: 'oJSONModel>DueDate', formatter:'.formatter.dueDate'}"
-								state="{path: 'oJSONModel>DueDate', formatter:'.formatter.statusColor'}"/>
-							<Text text="{oJSONModel>LastChangedBy}"/>
+							<Title text="{oJSONModel>doc/Content}"/>
+							<ObjectStatus class="sapUiSmallMarginBottom" text="{oJSONModel>doc/DueDate}"
+								state="{path: 'oJSONModel>doc/DueDate', formatter:'.formatter.statusColor'}"/>
+							<Text text="{oJSONModel>doc/LastChangedBy}"/>
 						</VBox>
 						<CheckBox text="Done" valueState="Success" class="sapUiTinyMarginEnd" select=".fnToDoDone"/>
 						<!--<Button  icon="" class="sapUiTinyMarginEnd" select=".fnToDoDone"/>-->

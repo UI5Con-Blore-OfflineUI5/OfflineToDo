@@ -85,6 +85,7 @@
 			}
 		},
 		"resources": {
+			"js": [{"uri":"libs/pouchdb.js"}],
 			"css": [{
 				"uri": "css/style.css"
 			}]
