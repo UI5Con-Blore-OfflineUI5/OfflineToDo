@@ -7,16 +7,16 @@
 					<Toolbar>
 						<Title text="ToDos" level="H2"/>
 						<ToolbarSpacer/>
-						<NumericContent value="65" valueColor="Error"  icon="sap-icon://synchronize" class="sapUiSmallMargin"
-							press="press"/>
+						<!--<NumericContent value="65" valueColor="Error"  icon="sap-icon://synchronize" class="sapUiSmallMargin"-->
+						<!--	press="press"/>-->
 						<Button icon="sap-icon://add" press="handleNewToDoButtonPress"/>
 					</Toolbar>
 				</headerToolbar>
 				<infoToolbar>
 					<Toolbar active="true">
-						<Label text="Online"/>
+							<Label text="{onlineModel>/status}"/>
 						<ToolbarSpacer/>
-						<!--<Button text="Sync"/>-->
+						<Button text="{onlineModel>/pendingTransactions} Sync" icon="sap-icon://synchronize" type="Emphasized" press=".fnSync"/>
 					</Toolbar>
 				</infoToolbar>
 				<CustomListItem>

@@ -72,7 +72,7 @@
 			},
 			"": {
 				"dataSource": "mainService",
-					"settings": {
+				"settings": {
 					"defaultCountMode": "Inline",
 					"defaultUpdateMethod": "PUT"
 				}
@@ -82,10 +82,17 @@
 				"settings": {},
 				"dataSource": "mainService",
 				"preload": true
+			},
+			"onlineModel": {
+				"type": "sap.ui.model.json.JSONModel",
+				"settings": {},
+				"preload": false
 			}
 		},
 		"resources": {
-			"js": [{"uri":"libs/pouchdb.js"}],
+			"js": [{
+				"uri": "libs/pouchdb.js"
+			}],
 			"css": [{
 				"uri": "css/style.css"
 			}]

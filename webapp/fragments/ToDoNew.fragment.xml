@@ -4,8 +4,6 @@
 			<TextArea width="100%" value="" rows="2"/>
 			<Label text="Due Date"/>
 			<DatePicker value=""/>
-			<Label text="Last Changed By"/>
-			<Text text=""/>
 		</VBox>
 	</FlexBox>
 	<beginButton>
