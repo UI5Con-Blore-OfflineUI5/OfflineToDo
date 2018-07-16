@@ -43,7 +43,10 @@
 			"tablet": true,
 			"phone": true
 		},
-		"supportedThemes": ["sap_hcb", "sap_bluecrystal"]
+		"supportedThemes": [
+			"sap_hcb",
+			"sap_bluecrystal"
+		]
 	},
 	"sap.ui5": {
 		"_version": "1.1.0",
@@ -91,12 +94,20 @@
 			}
 		},
 		"resources": {
-			"js": [{
-				"uri": "libs/pouchdb.js"
-			}],
-			"css": [{
-				"uri": "css/style.css"
-			}]
+			"js": [
+				{
+					"uri": "libs/pouchdb.js"
+				}
+			],
+			"css": [
+				{
+					"uri": "css/style.css"
+				}
+			]
 		}
+	},
+	"sap.platform.abap": {
+		"uri": "/sap/bc/ui5_ui5/sap/zui5con_offline/webapp",
+		"_version": "1.1.0"
 	}
 }

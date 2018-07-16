@@ -66,14 +66,16 @@ sap.ui.define([
 		
 		},
 		fnSyncSuccess: function(oData) {
-			console.log("success odata call");
+			// console.log("success odata call");
 			//Remove from localPendingTransactions
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
 			var db = PouchDB('LocalToDos');
 			var transactionDb = PouchDB('TransactionDb');
 			
-			
+			//Clear count
+			this.fnMarkSyncComplete();
+			// 
 			db.allDocs().then(function(result) {
 				// Promise isn't supported by all browsers; you may want to use bluebird
 				return Promise.all(result.rows.map(function(row) {
@@ -139,6 +141,9 @@ sap.ui.define([
 		},
 		fnIncreasePendingSyncCount: function() {
 			var currentData = this.getView().getModel("onlineModel").getData();
+			if (currentData.pendingTransactions === undefined){
+				currentData.pendingTransactions = 0;
+			}
 			currentData.pendingTransactions = currentData.pendingTransactions + 1;
 			this.getView().getModel("onlineModel").setData(currentData);
 		},
@@ -285,6 +290,9 @@ sap.ui.define([
 				"DueDate": Due
 			};
 
+			//Add to the pendingcount
+			this.fnIncreasePendingSyncCount();
+			
 			transactionDb.put({
 				_id: id,
 				Payload: Data,
@@ -359,6 +367,10 @@ sap.ui.define([
 			// 	"ToDos": array
 			// });
 
+
+			//Add to the pendingcount
+			this.fnIncreasePendingSyncCount();
+			
 			transactionDb.put({
 				_id: jQuery.now().toString(),
 				Payload: Data,
@@ -429,6 +441,9 @@ sap.ui.define([
 			this.getView().getModel("oJSONModel").getProperty(Path).doc.Done = true;
 			var Payload = this.getView().getModel("oJSONModel").getProperty(Path);
 
+			//Add to the pendingcount
+			this.fnIncreasePendingSyncCount();
+			
 			transactionDb.put({
 				_id: Payload.doc.id,
 				Payload: Payload.doc,

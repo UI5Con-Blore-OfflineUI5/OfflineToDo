@@ -1,1 +1,1 @@
-{"type":"sap.web","builders":{"configs":{}},"runners":{"configs":{}},"attributes":{"sap.watt.common.setting":["{\"basevalidator\":{\"services\":{\"js\":\"jsValidator\"}}}"]},"description":"","mixinTypes":[]}
+{"type":"sap.web","builders":{"configs":{}},"runners":{"configs":{}},"attributes":{"sap.watt.common.setting":["{\"basevalidator\":{\"services\":{\"js\":\"jsValidator\"}},\"deploy\":{\"destination\":\"GW1\",\"name\":\"ZUI5CON_OFFLINE\"},\"projectType\":[\"sap.watt.uitools.ide.fiori\",\"sap.watt.uitools.ide.web\",\"sap.web\"]}"]},"description":"","mixinTypes":[]}
