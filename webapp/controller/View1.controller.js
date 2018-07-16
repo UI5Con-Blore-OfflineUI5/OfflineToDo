@@ -8,6 +8,7 @@ sap.ui.define([
 
 	return Controller.extend("UI5ConOnlineApp.controller.View1", {
 		formatter: formatter,
+		
 		fnSync: function() {
 			var transactionDb = PouchDB('TransactionDb');
 			var db = PouchDB('LocalToDos');
@@ -23,6 +24,7 @@ sap.ui.define([
 				jQuery.each(result.rows, function(index, value) {
 					switch (value.doc.ChangeType) {
 						case "edit":
+							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
 							oDataModel.update(value.doc.url, value.doc.Payload, {
 								groupId: "sync"
 							});
@@ -297,7 +299,7 @@ sap.ui.define([
 				_id: id,
 				Payload: Data,
 				ChangeType: "edit",
-				url: "/ToDos"
+				url:  "/ToDos('" + id + "')"
 			}).then(function(response) {
 				console.log("POST Successful");
 			}).catch(function(err) {
@@ -333,6 +335,11 @@ sap.ui.define([
 				console.log(err);
 			});
 
+
+			var currentData = this.getView().getModel("onlineModel").getData();
+			if(currentData.status === "Online"){
+			this.fnSync();	
+			}
 			// var array = oJSONModel.getData().ToDos;
 			// array.push(Data);
 			// oJSONModel.setData({
@@ -404,6 +411,10 @@ sap.ui.define([
 				console.log(err);
 			});
 
+			var currentData = this.getView().getModel("onlineModel").getData();
+			if(currentData.status === "Online"){
+			this.fnSync();	
+			}
 			// oDataModel.create("/ToDos",Data,{
 			// 	success:function(response){
 
@@ -482,7 +493,11 @@ sap.ui.define([
 			}).catch(function(err) {
 				console.log(err);
 			});
-
+			
+			var currentData = this.getView().getModel("onlineModel").getData();
+			if(currentData.status === "Online"){
+			this.fnSync();	
+			}
 			//Mark as done
 			// var oModel = this.getView().getModel();
 			// oModel.update("/ToDos('" + itemId + "')", Payload.doc, {
