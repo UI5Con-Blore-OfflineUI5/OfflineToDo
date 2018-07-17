@@ -1,4 +1,4 @@
-<mvc:View controllerName="UI5ConOnlineApp.controller.View1" xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
+<mvc:View controllerName="UI5ConOfflineApp.controller.View1" xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
 	<FlexBox alignItems="Center" justifyContent="Center">
 		<Panel expandable="false" width="400px">
 			<List id="ToDoList" mode="SingleSelectMaster" rememberSelections="false" selectionChange=".fnEditToDo"
@@ -36,6 +36,6 @@
 		</Panel>
 	</FlexBox>
 	<!--<dependents>-->
-	<!--	UI5ConOnlineApp/fragments/ToDo-->
+	<!--	UI5ConOfflineApp/fragments/ToDo-->
 	<!--</dependents>-->
 </mvc:View>
