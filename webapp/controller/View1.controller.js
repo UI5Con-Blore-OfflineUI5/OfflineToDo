@@ -2,11 +2,11 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/m/GroupHeaderListItem",
-	"UI5ConOnlineApp/formatter/formatter"
+	"UI5ConOfflineApp/formatter/formatter"
 ], function(Controller, GroupHeaderListItem, formatter) {
 	"use strict";
 
-	return Controller.extend("UI5ConOnlineApp.controller.View1", {
+	return Controller.extend("UI5ConOfflineApp.controller.View1", {
 		formatter: formatter,
 		
 		fnSync: function() {
@@ -269,7 +269,7 @@ sap.ui.define([
 		},
 		handleNewToDoButtonPress: function() {
 			// if (!oToDoDialog) {
-			var oToDoDialog = sap.ui.xmlfragment("UI5ConOnlineApp.fragments.ToDoNew", this.getView().getController());
+			var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDoNew", this.getView().getController());
 			// }
 			//Bind Data
 			this.getView().addDependent(oToDoDialog);
@@ -428,7 +428,7 @@ sap.ui.define([
 		},
 		fnEditToDo: function(evt) {
 			if (!oToDoDialog) {
-				var oToDoDialog = sap.ui.xmlfragment("UI5ConOnlineApp.fragments.ToDo", this.getView().getController());
+				var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDo", this.getView().getController());
 			}
 			//Bind Data
 			this.getView().addDependent(oToDoDialog);

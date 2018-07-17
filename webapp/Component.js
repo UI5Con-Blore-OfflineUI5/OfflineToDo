@@ -5,7 +5,7 @@ sap.ui.define([
 ], function(UIComponent, Device, models) {
 	"use strict";
 
-	return UIComponent.extend("UI5ConOnlineApp.Component", {
+	return UIComponent.extend("UI5ConOfflineApp.Component", {
 
 		metadata: {
 			manifest: "json"
