@@ -26,13 +26,13 @@ sap.ui.define([
 						case "edit":
 							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
 							oDataModel.update(value.doc.url, value.doc.Payload, {
-								groupId: "sync"
+								groupId: "syncEdit"
 							});
 							break;
 						case "create":
 							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
 							oDataModel.create(value.doc.url, value.doc.Payload, {
-								groupId: "sync"
+								groupId: "syncCreate"
 							});
 							break;
 						case "update":
@@ -41,7 +41,7 @@ sap.ui.define([
 							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
 							value.doc.Payload.LastChangedOn  = new Date(value.doc.Payload.LastChangedOn);
 							oDataModel.update(value.doc.url, value.doc.Payload, {
-								groupId: "sync"
+								groupId: "syncUpdate"
 							});
 							break;
 					}
@@ -49,7 +49,7 @@ sap.ui.define([
 				});
 				//Send to backed
 				oDataModel.submitChanges({
-				groupId: "sync",
+				// groupId: "sync", "If no groupID mentioned, then all groups are submitted"
 				success: this.fnSyncSuccess.bind(this),
 				error: this.fnSyncFailure
 			});
