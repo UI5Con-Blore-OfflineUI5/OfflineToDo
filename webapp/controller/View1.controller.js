@@ -46,7 +46,7 @@ sap.ui.define([
 				});
 				//Send to backed
 				oDataModel.submitChanges({
-					// groupId: "sync", "If no groupID mentioned, then all groups are submitted"
+					groupId: "sync", //If no groupID mentioned, then all groups are submitted"
 					success: this.fnSyncSuccess.bind(this),
 					error: this.fnSyncFailure
 				});
@@ -64,6 +64,7 @@ sap.ui.define([
 
 			//Clear count
 			this.fnMarkSyncComplete();
+			
 			// 
 			db.allDocs().then(function (result) {
 				// Promise isn"t supported by all browsers; you may want to use bluebird
@@ -131,12 +132,12 @@ sap.ui.define([
 		},
 		fnIsOnline: function () {
 			var that = this;
-			window.addEventListener("offline", function (e) {
+			window.addEventListener("offline", function () {
 				var currentData = that.getView().getModel("onlineModel").getData();
 				currentData.status = "Offline";
 				that.getView().getModel("onlineModel").setData(currentData);
 			});
-			window.addEventListener("online", function (e) {
+			window.addEventListener("online", function () {
 				var currentData = that.getView().getModel("onlineModel").getData();
 				currentData.status = "Online";
 				that.getView().getModel("onlineModel").setData(currentData);
