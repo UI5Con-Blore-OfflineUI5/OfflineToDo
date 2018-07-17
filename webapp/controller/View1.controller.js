@@ -56,17 +56,8 @@ sap.ui.define([
 			}.bind(this)).catch(function (err) {
 				console.log(err);
 			});
-
-			//This is going to be a single $batch call with multiple changesets
-			// for (var i = 0; i < aPendingChanges.length; i++) {
-			// 	oDataModel.update(aPendingChanges.url, aPendingChanges.payload, {
-			// 		groupId: "sync"
-			// 	});
-			// }
-
 		},
 		fnSyncSuccess: function (oData) {
-			// console.log("success odata call");
 			//Remove from localPendingTransactions
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
@@ -81,10 +72,6 @@ sap.ui.define([
 				return Promise.all(result.rows.map(function (row) {
 					return db.remove(row.id, row.value.rev);
 				}));
-			}).then(function () {
-				// done!
-			}).catch(function (err) {
-				// error!
 			});
 
 			transactionDb.allDocs().then(function (result) {
@@ -92,10 +79,6 @@ sap.ui.define([
 				return Promise.all(result.rows.map(function (row) {
 					return transactionDb.remove(row.id, row.value.rev);
 				}));
-			}).then(function () {
-				// done!
-			}).catch(function (err) {
-				// error!
 			});
 
 			oDataModel.read("/ToDos", {
@@ -103,7 +86,6 @@ sap.ui.define([
 					jQuery.each(oData.results, function (index, value) {
 						value._id = value.id;
 						delete value.__metadata;
-
 					});
 
 					db.bulkDocs(oData.results).then(function (result, doc) {
@@ -126,10 +108,8 @@ sap.ui.define([
 
 				}.bind(this),
 				error: function (response) {
-
 				}
 			});
-
 		},
 		fnSyncFailure: function (oError) {
 			//Inform the user
@@ -189,10 +169,6 @@ sap.ui.define([
 				return Promise.all(result.rows.map(function (row) {
 					return db.remove(row.id, row.value.rev);
 				}));
-			}).then(function () {
-				// done!
-			}).catch(function (err) {
-				// error!
 			});
 
 			transactionDb.allDocs().then(function (result) {
@@ -200,10 +176,6 @@ sap.ui.define([
 				return Promise.all(result.rows.map(function (row) {
 					return transactionDb.remove(row.id, row.value.rev);
 				}));
-			}).then(function () {
-				// done!
-			}).catch(function (err) {
-				// error!
 			});
 
 			oDataModel.read("/ToDos", {
@@ -211,16 +183,13 @@ sap.ui.define([
 					jQuery.each(oData.results, function (index, value) {
 						value._id = value.id;
 						delete value.__metadata;
-
 					});
-
 					db.bulkDocs(oData.results).then(function (result, doc) {
 						console.log('Successfully posted a todo!');
 						// handle result
 					}).catch(function (err) {
 						console.log(err);
 					});
-
 					db.allDocs({
 						include_docs: true,
 						attachments: true
@@ -231,41 +200,20 @@ sap.ui.define([
 					}).catch(function (err) {
 						console.log(err);
 					});
-
 				}.bind(this),
 				error: function (response) {
-
 				}
 			});
 
 			//All sync calls are deferred
-			this.getView().getModel().setChangeGroups({"ToDo":{groupId:"sync", single: true}});
+			this.getView().getModel().setChangeGroups({
+				"ToDo": {
+					groupId: "sync",
+					single: true
+				}
+			});
 			this.getView().getModel().setDeferredGroups(["sync"]);
 		},
-		// oDataCall: function() {
-		// 	var oJSONModel = this.getView().getModel("oJSONModel");
-		// 	var oDataModel = this.getView().getModel();
-		// 	oJSONModel.setData({
-		// 		"ToDos": null
-		// 	});
-		// 	oDataModel.read("/ToDos", {
-		// 		success: function(oData) {
-		// 			oJSONModel.setData({
-		// 				"ToDos": oData.results
-		// 			});
-
-		// 		},
-		// 		error: function(response) {
-
-		// 		}
-		// 	});
-		// },
-		// fnGetGroupHeader: function(oGroup) {
-		// 	return new GroupHeaderListItem({
-		// 		title: oGroup.key,
-		// 		upperCase: false
-		// 	}).addStyleClass("sapMH1Style");
-		// },
 		handleNewToDoButtonPress: function () {
 			// if (!oToDoDialog) {
 			var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDoNew", this.getView().getController());
@@ -277,8 +225,8 @@ sap.ui.define([
 			oToDoDialog.open();
 
 		},
+		//Editing and Saving an existing ToDo
 		fnSaveEdit: function (evt) {
-			var oDataModel = this.getView().getModel();
 			var transactionDb = PouchDB('TransactionDb');
 			var db = PouchDB('LocalToDos');
 			var oJSONModel = this.getView().getModel("oJSONModel");
@@ -294,6 +242,7 @@ sap.ui.define([
 			//Add to the pendingcount
 			this.fnIncreasePendingSyncCount();
 
+			//Add the transaction to the pending que
 			transactionDb.put({
 				_id: id,
 				Payload: Data,
@@ -305,6 +254,7 @@ sap.ui.define([
 				console.log(err);
 			});
 
+			//Update the local DB record
 			db.get(id).then(function (doc) {
 				return db.put({
 					_id: id,
@@ -334,30 +284,21 @@ sap.ui.define([
 				console.log(err);
 			});
 
+			//If Online- run sync right away
 			var currentData = this.getView().getModel("onlineModel").getData();
 			if (currentData.status === "Online") {
 				this.fnSync();
 			}
-			// var array = oJSONModel.getData().ToDos;
-			// array.push(Data);
-			// oJSONModel.setData({
-			// 	"ToDos": array
-			// });
-			// oDataModel.create("/ToDos", Data, {
-			// 	success: function(response) {
 
-			// 	}.bind(this),
-			// 	error: function(response) {
-
-			// 	}
-			// });
+			// Close the pop-up
 			evt.getSource().getParent().close();
 
 		},
+		//New ToDO added
 		fnSave: function (oEvent) {
 			var transactionDb = PouchDB('TransactionDb');
 			var db = PouchDB('LocalToDos');
-			var oDataModel = this.getView().getModel();
+
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var Content = oEvent.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
 			var Due = oEvent.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
@@ -365,17 +306,13 @@ sap.ui.define([
 				"Content": Content,
 				"DueDate": Due
 			};
-			// var array = oJSONModel.getData().ToDos;
-			// array.push(Data);
-			// oJSONModel.setData({
-			// 	"ToDos": array
-			// });
 
 			//Add to the pendingcount
 			this.fnIncreasePendingSyncCount();
 
+			//Add the transaction to the pending que
 			transactionDb.put({
-				_id: jQuery.now().toString(),
+				_id: jQuery.now().toString(), //current timestamp as id
 				Payload: Data,
 				ChangeType: "create",
 				url: "/ToDos"
@@ -385,6 +322,7 @@ sap.ui.define([
 				console.log(err);
 			});
 
+			//Update the local DB, to add the new ToDo
 			db.put({
 				_id: jQuery.now().toString(),
 				Content: Content,
@@ -407,43 +345,40 @@ sap.ui.define([
 				console.log(err);
 			});
 
+			//If Online- run sync right away
 			var currentData = this.getView().getModel("onlineModel").getData();
 			if (currentData.status === "Online") {
 				this.fnSync();
 			}
-			// oDataModel.create("/ToDos",Data,{
-			// 	success:function(response){
 
-			// 	}.bind(this),
-			// 	error:function(response){
-
-			// 	}
-			// });
+			// Close the pop-up
 			oEvent.getSource().getParent().close();
-
 		},
-		fnEditToDo: function (evt) {
-			if (!oToDoDialog) {
-				var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDo", this.getView().getController());
+		
+		//When ToDo is clicked upon
+		fnEditToDo: function () {
+			if (!this.oToDoDialog) {
+				this.oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDo", this.getView().getController());
 			}
 			//Bind Data
-			this.getView().addDependent(oToDoDialog);
+			this.getView().addDependent(this.oToDoDialog);
 			//oToDoDialog.setModel(this.getView().getModel("oJSONModel"),"oJSONModel");
 			var oList = this.byId("ToDoList");
 			var oSelectedItem = oList.getSelectedItem();
-			oToDoDialog.setBindingContext(oSelectedItem.getBindingContext("oJSONModel"), "oJSONModel");
+			this.oToDoDialog.setBindingContext(oSelectedItem.getBindingContext("oJSONModel"), "oJSONModel");
 
-			oToDoDialog.open();
+			this.oToDoDialog.open();
 			//Unselect the item, so that it can be selected again
 			oList.setSelectedItem(oSelectedItem, false);
 		},
+		
+		//When 'Done' checkbox was selected
 		fnToDoDone: function (oEvent) {
 			var transactionDb = PouchDB('TransactionDb');
 			var db = PouchDB('LocalToDos');
 			var id = oEvent.getSource().getParent().getBindingContext("oJSONModel").getObject().doc._id;
 			var itemId = oEvent.getSource().getParent().getBindingContext("oJSONModel").getObject().doc.id;
 			var Path = oEvent.getSource().getParent().getBindingContext("oJSONModel").sPath;
-			//this.getView().getModel("oJSONModel").setProperty(Path + "/doc/Done", true);
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			this.getView().getModel("oJSONModel").getProperty(Path).doc.Done = true;
 			var Payload = this.getView().getModel("oJSONModel").getProperty(Path);
@@ -478,7 +413,8 @@ sap.ui.define([
 			}).catch(function (err) {
 				console.log(err);
 			});
-
+			
+			//Refresh the ToDo list on the screen from local DB
 			db.allDocs({
 				include_docs: true,
 				attachments: true
@@ -494,20 +430,9 @@ sap.ui.define([
 			if (currentData.status === "Online") {
 				this.fnSync();
 			}
-			//Mark as done
-			// var oModel = this.getView().getModel();
-			// oModel.update("/ToDos('" + itemId + "')", Payload.doc, {
-			// 	success: this.mySuccessHandler(),
-			// 	error: this.myErrorHandler()
-			// });
 		},
-		// mySuccessHandler: function(Response) {
-		// 	this.oDataCall();
-		// },
-		// myErrorHandler: function(error) {
 
-		// },
-		//Closing the Po-up
+		//Closing the Pop-up
 		fnClose: function (evt) {
 			evt.getSource().getParent().close();
 		}
