@@ -7,8 +7,6 @@
 					<Toolbar>
 						<Title text="ToDos" level="H2"/>
 						<ToolbarSpacer/>
-						<!--<NumericContent value="65" valueColor="Error"  icon="sap-icon://synchronize" class="sapUiSmallMargin"-->
-						<!--	press="press"/>-->
 						<Button icon="sap-icon://add" press="handleNewToDoButtonPress"/>
 					</Toolbar>
 				</headerToolbar>
@@ -35,7 +33,4 @@
 			</List>
 		</Panel>
 	</FlexBox>
-	<!--<dependents>-->
-	<!--	UI5ConOfflineApp/fragments/ToDo-->
-	<!--</dependents>-->
 </mvc:View>

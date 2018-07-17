@@ -243,30 +243,30 @@ sap.ui.define([
 			//All sync calls are deferred
 			this.getView().getModel().setDeferredGroups(["sync"]);
 		},
-		oDataCall: function() {
-			var oJSONModel = this.getView().getModel("oJSONModel");
-			var oDataModel = this.getView().getModel();
-			oJSONModel.setData({
-				"ToDos": null
-			});
-			oDataModel.read("/ToDos", {
-				success: function(oData) {
-					oJSONModel.setData({
-						"ToDos": oData.results
-					});
+		// oDataCall: function() {
+		// 	var oJSONModel = this.getView().getModel("oJSONModel");
+		// 	var oDataModel = this.getView().getModel();
+		// 	oJSONModel.setData({
+		// 		"ToDos": null
+		// 	});
+		// 	oDataModel.read("/ToDos", {
+		// 		success: function(oData) {
+		// 			oJSONModel.setData({
+		// 				"ToDos": oData.results
+		// 			});
 
-				},
-				error: function(response) {
+		// 		},
+		// 		error: function(response) {
 
-				}
-			});
-		},
-		fnGetGroupHeader: function(oGroup) {
-			return new GroupHeaderListItem({
-				title: oGroup.key,
-				upperCase: false
-			}).addStyleClass("sapMH1Style");
-		},
+		// 		}
+		// 	});
+		// },
+		// fnGetGroupHeader: function(oGroup) {
+		// 	return new GroupHeaderListItem({
+		// 		title: oGroup.key,
+		// 		upperCase: false
+		// 	}).addStyleClass("sapMH1Style");
+		// },
 		handleNewToDoButtonPress: function() {
 			// if (!oToDoDialog) {
 			var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDoNew", this.getView().getController());
@@ -363,7 +363,6 @@ sap.ui.define([
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var Content = oEvent.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
 			var Due = oEvent.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
-			//var Done = oEvent.getSource().getParent().getContent()[0].getItems()[0].getItems()[5].getSelected();
 			var Data = {
 				"Content": Content,
 				"DueDate": Due
@@ -505,12 +504,13 @@ sap.ui.define([
 			// 	error: this.myErrorHandler()
 			// });
 		},
-		mySuccessHandler: function(Response) {
-			this.oDataCall();
-		},
-		myErrorHandler: function(error) {
+		// mySuccessHandler: function(Response) {
+		// 	this.oDataCall();
+		// },
+		// myErrorHandler: function(error) {
 
-		},
+		// },
+		//Closing the Po-up
 		fnClose: function(evt) {
 			evt.getSource().getParent().close();
 		}
