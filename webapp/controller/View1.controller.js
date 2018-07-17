@@ -206,6 +206,11 @@ sap.ui.define([
 						include_docs: true,
 						attachments: true
 					}).then(function (result) {
+						//Convert Date to Date Object
+						jQuery.each(result.rows, function (index, value) {
+							value.doc.DueDate = new Date(value.doc.DueDate);
+						});
+
 						oJSONModel.setData({
 							"ToDos": result.rows
 						});
@@ -379,6 +384,7 @@ sap.ui.define([
 			db.get(id).then(function (doc) {
 				//Remove the 'Done' ToDo
 				db.remove(id, doc._rev).then(function () {
+					//Refresh the ToDo list on the screen from local DB
 					db.allDocs({
 						include_docs: true,
 						attachments: true
@@ -389,16 +395,6 @@ sap.ui.define([
 					});
 				});
 			});
-
-			//Refresh the ToDo list on the screen from local DB
-			// db.allDocs({
-			// 	include_docs: true,
-			// 	attachments: true
-			// }).then(function (result) {
-			// 	oJSONModel.setData({
-			// 		"ToDos": result.rows
-			// 	});
-			// });
 
 			var currentData = this.getView().getModel("onlineModel").getData();
 			if (currentData.status === "Online") {

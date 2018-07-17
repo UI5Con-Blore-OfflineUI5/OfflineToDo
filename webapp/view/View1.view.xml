@@ -12,24 +12,24 @@
 				</headerToolbar>
 				<infoToolbar>
 					<Toolbar active="true">
-							<Label text="{onlineModel>/status}"/>
+						<Label text="{onlineModel>/status}"/>
 						<ToolbarSpacer/>
-						<Button text="{onlineModel>/pendingTransactions} Sync" icon="sap-icon://synchronize" type="Emphasized" press=".fnSync" enabled="{onlineModel>/enableSync}"/>
+						<Button text="{onlineModel>/pendingTransactions} Sync" icon="sap-icon://synchronize" type="Emphasized" press=".fnSync"
+							enabled="{onlineModel>/enableSync}"/>
 					</Toolbar>
 				</infoToolbar>
 				<CustomListItem>
 					<FlexBox direction="Row" alignItems="Start" justifyContent="SpaceBetween">
 						<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
 							<Title text="{oJSONModel>doc/Content}"/>
-							<ObjectStatus class="sapUiSmallMarginBottom" text="{oJSONModel>doc/DueDate}"
+							<ObjectStatus class="sapUiSmallMarginBottom"
+								text="{path:'oJSONModel>doc/DueDate', type:'sap.ui.model.type.Date', formatOptions: { style: 'long'}}"
 								state="{path: 'oJSONModel>doc/DueDate', formatter:'.formatter.statusColor'}"/>
 							<Text text="{oJSONModel>doc/LastChangedBy}"/>
 						</VBox>
 						<CheckBox text="Done" valueState="Success" class="sapUiTinyMarginEnd" select=".fnToDoDone"/>
-						<!--<Button  icon="" class="sapUiTinyMarginEnd" select=".fnToDoDone"/>-->
 					</FlexBox>
 				</CustomListItem>
-				<!--<StandardListItem title="{Content}" type="Active"/>-->
 			</List>
 		</Panel>
 	</FlexBox>
