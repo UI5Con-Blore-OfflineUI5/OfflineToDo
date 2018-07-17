@@ -3,8 +3,9 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/m/GroupHeaderListItem",
-	"UI5ConOfflineApp/formatter/formatter"
-], function (Controller, GroupHeaderListItem, formatter) {
+	"UI5ConOfflineApp/formatter/formatter",
+	"sap/m/BusyDialog"
+], function (Controller, GroupHeaderListItem, formatter, BusyDialog) {
 	"use strict";
 
 	return Controller.extend("UI5ConOfflineApp.controller.View1", {
@@ -44,6 +45,13 @@ sap.ui.define([
 						break;
 					}
 				});
+
+				oDataModel.attachEventOnce("batchRequestSent", function () {
+					this._BusyDialog.open();
+				}.bind(this));
+				oDataModel.attachEventOnce("batchRequestCompleted", this.fnSyncSuccess.bind(this));
+				oDataModel.attachEventOnce("batchRequestFailed", this.fnSyncFailure.bind(this));
+
 				//Send to backed
 				oDataModel.submitChanges({
 					groupId: "sync", //If no groupID mentioned, then all groups are submitted"
@@ -56,7 +64,8 @@ sap.ui.define([
 		},
 		//Sync is successfull. What to do now?
 		fnSyncSuccess: function (oData) {
-
+			this._BusyDialog.close();
+			
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
 			var db = PouchDB("LocalToDos");
@@ -64,7 +73,7 @@ sap.ui.define([
 
 			//Clear count
 			this.fnMarkSyncComplete();
-			
+
 			// 
 			db.allDocs().then(function (result) {
 				// Promise isn"t supported by all browsers; you may want to use bluebird
@@ -96,7 +105,7 @@ sap.ui.define([
 					}).catch(function (err) {
 						console.log(err);
 					});
-					
+
 					//Read the local DB and update the JSON model so as to update the screen
 					db.allDocs({
 						include_docs: true,
@@ -110,11 +119,11 @@ sap.ui.define([
 					});
 
 				}.bind(this),
-				error: function (response) {
-				}
+				error: function (response) {}
 			});
 		},
 		fnSyncFailure: function (oError) {
+			this._BusyDialog.close();
 			//Inform the user
 		},
 		fnMarkSyncComplete: function () {
@@ -157,6 +166,7 @@ sap.ui.define([
 			//Create required DBs
 			var db = new PouchDB("LocalToDos");
 			var transactionDb = new PouchDB("TransactionDb");
+			this._BusyDialog = new BusyDialog({text: "Syncing"});
 
 			//Online Status
 			this.fnIsOnline();
@@ -204,8 +214,7 @@ sap.ui.define([
 						console.log(err);
 					});
 				}.bind(this),
-				error: function (response) {
-				}
+				error: function (response) {}
 			});
 
 			//All sync calls are deferred
@@ -246,10 +255,6 @@ sap.ui.define([
 				Payload: Data,
 				ChangeType: "edit",
 				url: "/ToDos('" + id + "')"
-			}).then(function (response) {
-				console.log("POST Successful");
-			}).catch(function (err) {
-				console.log(err);
 			});
 
 			//Update the local DB record
@@ -265,7 +270,6 @@ sap.ui.define([
 					id: id
 				});
 			}.bind(this)).then(function (response) {
-
 				db.allDocs({
 					include_docs: true,
 					attachments: true
@@ -352,7 +356,7 @@ sap.ui.define([
 			// Close the pop-up
 			oEvent.getSource().getParent().close();
 		},
-		
+
 		//When ToDo is clicked upon
 		fnEditToDo: function () {
 			if (!this.oToDoDialog) {
@@ -369,7 +373,7 @@ sap.ui.define([
 			//Unselect the item, so that it can be selected again
 			oList.setSelectedItem(oSelectedItem, false);
 		},
-		
+
 		//When "Done" checkbox was selected
 		fnToDoDone: function (oEvent) {
 			var transactionDb = PouchDB("TransactionDb");
@@ -411,7 +415,7 @@ sap.ui.define([
 			}).catch(function (err) {
 				console.log(err);
 			});
-			
+
 			//Refresh the ToDo list on the screen from local DB
 			db.allDocs({
 				include_docs: true,
