@@ -65,7 +65,7 @@ sap.ui.define([
 		//Sync is successfull. What to do now?
 		fnSyncSuccess: function (oData) {
 			this._BusyDialog.close();
-			
+
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
 			var db = PouchDB("LocalToDos");
@@ -99,12 +99,7 @@ sap.ui.define([
 					});
 
 					//Update the local DB
-					db.bulkDocs(oData.results).then(function (result, doc) {
-						console.log("Successfully posted a todo!");
-						// handle result
-					}).catch(function (err) {
-						console.log(err);
-					});
+					db.bulkDocs(oData.results);
 
 					//Read the local DB and update the JSON model so as to update the screen
 					db.allDocs({
@@ -114,12 +109,10 @@ sap.ui.define([
 						oJSONModel.setData({
 							"ToDos": result.rows
 						});
-					}).catch(function (err) {
-						console.log(err);
 					});
 
 				}.bind(this),
-				error: function (response) {}
+				error: function () {}
 			});
 		},
 		fnSyncFailure: function (oError) {
@@ -168,9 +161,11 @@ sap.ui.define([
 		},
 		onInit: function () {
 			//Create required DBs
-			var db = new PouchDB("LocalToDos");
-			var transactionDb = new PouchDB("TransactionDb");
-			this._BusyDialog = new BusyDialog({text: "Syncing"});
+			// var db = new PouchDB("LocalToDos");
+			// var transactionDb = new PouchDB("TransactionDb");
+			this._BusyDialog = new BusyDialog({
+				text: "Syncing"
+			});
 
 			//Online Status
 			this.fnIsOnline();
@@ -281,14 +276,8 @@ sap.ui.define([
 					oJSONModel.setData({
 						"ToDos": result.rows
 					});
-				}).catch(function (err) {
-					console.log(err);
 				});
-
-				console.log("UPDATE Successful");
-			}.bind(this)).catch(function (err) {
-				console.log(err);
-			});
+			}.bind(this));
 
 			//If Online- run sync right away
 			var currentData = this.getView().getModel("onlineModel").getData();
@@ -298,7 +287,6 @@ sap.ui.define([
 
 			// Close the pop-up
 			evt.getSource().getParent().close();
-
 		},
 		//New ToDO added
 		fnSave: function (oEvent) {
@@ -322,10 +310,6 @@ sap.ui.define([
 				Payload: Data,
 				ChangeType: "create",
 				url: "/ToDos"
-			}).then(function (response) {
-				console.log("POST Successful");
-			}).catch(function (err) {
-				console.log(err);
 			});
 
 			//Update the local DB, to add the new ToDo
@@ -333,8 +317,7 @@ sap.ui.define([
 				_id: jQuery.now().toString(),
 				Content: Content,
 				DueDate: Due
-			}).then(function (response) {
-
+			}).then(function () {
 				db.allDocs({
 					include_docs: true,
 					attachments: true
@@ -342,13 +325,7 @@ sap.ui.define([
 					oJSONModel.setData({
 						"ToDos": result.rows
 					});
-				}).catch(function (err) {
-					console.log(err);
 				});
-
-				console.log("UPDATE Successful");
-			}).catch(function (err) {
-				console.log(err);
 			});
 
 			//If Online- run sync right away
@@ -368,7 +345,6 @@ sap.ui.define([
 			}
 			//Bind Data
 			this.getView().addDependent(this.oToDoDialog);
-			//oToDoDialog.setModel(this.getView().getModel("oJSONModel"),"oJSONModel");
 			var oList = this.byId("ToDoList");
 			var oSelectedItem = oList.getSelectedItem();
 			this.oToDoDialog.setBindingContext(oSelectedItem.getBindingContext("oJSONModel"), "oJSONModel");
@@ -392,45 +368,37 @@ sap.ui.define([
 			//Add to the pendingcount
 			this.fnIncreasePendingSyncCount();
 
+			//Que it up in the pending transaction db
 			transactionDb.put({
 				_id: Payload.doc.id,
 				Payload: Payload.doc,
 				ChangeType: "update",
 				url: "/ToDos('" + itemId + "')"
-			}).then(function (response) {
-				console.log("POST Successful");
-			}).catch(function (err) {
-				console.log(err);
 			});
 
 			db.get(id).then(function (doc) {
-				return db.put({
-					_id: id,
-					_rev: doc._rev,
-					Content: doc.Content,
-					Done: true,
-					DueDate: doc.DueDate,
-					LastChangedBy: doc.LastChangedBy,
-					LastChangedOn: doc.LastChangedOn,
-					id: doc.id
+				//Remove the 'Done' ToDo
+				db.remove(id, doc._rev).then(function () {
+					db.allDocs({
+						include_docs: true,
+						attachments: true
+					}).then(function (result) {
+						oJSONModel.setData({
+							"ToDos": result.rows
+						});
+					});
 				});
-			}).then(function (response) {
-				// handle response
-			}).catch(function (err) {
-				console.log(err);
 			});
 
 			//Refresh the ToDo list on the screen from local DB
-			db.allDocs({
-				include_docs: true,
-				attachments: true
-			}).then(function (result) {
-				oJSONModel.setData({
-					"ToDos": result.rows
-				});
-			}).catch(function (err) {
-				console.log(err);
-			});
+			// db.allDocs({
+			// 	include_docs: true,
+			// 	attachments: true
+			// }).then(function (result) {
+			// 	oJSONModel.setData({
+			// 		"ToDos": result.rows
+			// 	});
+			// });
 
 			var currentData = this.getView().getModel("onlineModel").getData();
 			if (currentData.status === "Online") {
