@@ -14,7 +14,7 @@
 					<Toolbar active="true">
 							<Label text="{onlineModel>/status}"/>
 						<ToolbarSpacer/>
-						<Button text="{onlineModel>/pendingTransactions} Sync" icon="sap-icon://synchronize" type="Emphasized" press=".fnSync"/>
+						<Button text="{onlineModel>/pendingTransactions} Sync" icon="sap-icon://synchronize" type="Emphasized" press=".fnSync" enabled="{onlineModel>/enableSync}"/>
 					</Toolbar>
 				</infoToolbar>
 				<CustomListItem>

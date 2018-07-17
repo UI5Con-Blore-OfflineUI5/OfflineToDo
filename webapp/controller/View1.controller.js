@@ -144,11 +144,13 @@ sap.ui.define([
 			window.addEventListener("offline", function () {
 				var currentData = that.getView().getModel("onlineModel").getData();
 				currentData.status = "Offline";
+				currentData.enableSync = false;
 				that.getView().getModel("onlineModel").setData(currentData);
 			});
 			window.addEventListener("online", function () {
 				var currentData = that.getView().getModel("onlineModel").getData();
 				currentData.status = "Online";
+				currentData.enableSync = true;
 				that.getView().getModel("onlineModel").setData(currentData);
 			});
 		},
@@ -157,8 +159,10 @@ sap.ui.define([
 			var currentData = this.getView().getModel("onlineModel").getData();
 			if (window.navigator.onLine) {
 				currentData.status = "Online";
+				currentData.enableSync = true;
 			} else {
 				currentData.status = "Offline";
+				currentData.enableSync = false;
 			}
 			this.getView().getModel("onlineModel").setData(currentData);
 		},
