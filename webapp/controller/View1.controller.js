@@ -10,13 +10,10 @@ sap.ui.define([
 		formatter: formatter,
 
 		fnSync: function () {
-			var transactionDb = PouchDB('TransactionDb');
-			var db = PouchDB('LocalToDos');
+			var transactionDb = PouchDB("TransactionDb");
 			var oDataModel = this.getView().getModel();
-			//Fetch pending changes to be synced
-			var aPendingChanges;
-			//= this.transactionDb.getallDocs();
 
+			//Fetch pending changes to be synced
 			transactionDb.allDocs({
 				include_docs: true,
 				attachments: true
@@ -61,14 +58,14 @@ sap.ui.define([
 			//Remove from localPendingTransactions
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
-			var db = PouchDB('LocalToDos');
-			var transactionDb = PouchDB('TransactionDb');
+			var db = PouchDB("LocalToDos");
+			var transactionDb = PouchDB("TransactionDb");
 
 			//Clear count
 			this.fnMarkSyncComplete();
 			// 
 			db.allDocs().then(function (result) {
-				// Promise isn't supported by all browsers; you may want to use bluebird
+				// Promise isn"t supported by all browsers; you may want to use bluebird
 				return Promise.all(result.rows.map(function (row) {
 					return db.remove(row.id, row.value.rev);
 				}));
@@ -89,7 +86,7 @@ sap.ui.define([
 					});
 
 					db.bulkDocs(oData.results).then(function (result, doc) {
-						console.log('Successfully posted a todo!');
+						console.log("Successfully posted a todo!");
 						// handle result
 					}).catch(function (err) {
 						console.log(err);
@@ -151,19 +148,19 @@ sap.ui.define([
 			this.getView().getModel("onlineModel").setData(currentData);
 		},
 		onInit: function () {
-			var db = new PouchDB('LocalToDos');
-			var transactionDb = new PouchDB('TransactionDb');
+			//Create required DBs
+			var db = new PouchDB("LocalToDos");
+			var transactionDb = new PouchDB("TransactionDb");
 
 			//Online Status
 			this.fnIsOnline();
-
 		},
 		onBeforeRendering: function () {
 			this.fnCurrentStatus();
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
-			var db = PouchDB('LocalToDos');
-			var transactionDb = PouchDB('TransactionDb');
+			var db = PouchDB("LocalToDos");
+			var transactionDb = PouchDB("TransactionDb");
 			db.allDocs().then(function (result) {
 				// Promise isn't supported by all browsers; you may want to use bluebird
 				return Promise.all(result.rows.map(function (row) {
@@ -185,7 +182,7 @@ sap.ui.define([
 						delete value.__metadata;
 					});
 					db.bulkDocs(oData.results).then(function (result, doc) {
-						console.log('Successfully posted a todo!');
+						console.log("Successfully posted a todo!");
 						// handle result
 					}).catch(function (err) {
 						console.log(err);
@@ -215,20 +212,15 @@ sap.ui.define([
 			this.getView().getModel().setDeferredGroups(["sync"]);
 		},
 		handleNewToDoButtonPress: function () {
-			// if (!oToDoDialog) {
 			var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDoNew", this.getView().getController());
-			// }
 			//Bind Data
 			this.getView().addDependent(oToDoDialog);
-			//oToDoDialog.setModel(this.getView().getModel("oJSONModel"),"oJSONModel");
-			var oList = this.byId("ToDoList");
 			oToDoDialog.open();
-
 		},
 		//Editing and Saving an existing ToDo
 		fnSaveEdit: function (evt) {
-			var transactionDb = PouchDB('TransactionDb');
-			var db = PouchDB('LocalToDos');
+			var transactionDb = PouchDB("TransactionDb");
+			var db = PouchDB("LocalToDos");
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var Content = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
 			var Due = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
@@ -296,8 +288,8 @@ sap.ui.define([
 		},
 		//New ToDO added
 		fnSave: function (oEvent) {
-			var transactionDb = PouchDB('TransactionDb');
-			var db = PouchDB('LocalToDos');
+			var transactionDb = PouchDB("TransactionDb");
+			var db = PouchDB("LocalToDos");
 
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var Content = oEvent.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
@@ -372,10 +364,10 @@ sap.ui.define([
 			oList.setSelectedItem(oSelectedItem, false);
 		},
 		
-		//When 'Done' checkbox was selected
+		//When "Done" checkbox was selected
 		fnToDoDone: function (oEvent) {
-			var transactionDb = PouchDB('TransactionDb');
-			var db = PouchDB('LocalToDos');
+			var transactionDb = PouchDB("TransactionDb");
+			var db = PouchDB("LocalToDos");
 			var id = oEvent.getSource().getParent().getBindingContext("oJSONModel").getObject().doc._id;
 			var itemId = oEvent.getSource().getParent().getBindingContext("oJSONModel").getObject().doc.id;
 			var Path = oEvent.getSource().getParent().getBindingContext("oJSONModel").sPath;
