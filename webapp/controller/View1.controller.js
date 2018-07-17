@@ -1,4 +1,5 @@
 /* global PouchDB: true */
+/* global Promise: true */
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/m/GroupHeaderListItem",
@@ -42,7 +43,6 @@ sap.ui.define([
 						});
 						break;
 					}
-
 				});
 				//Send to backed
 				oDataModel.submitChanges({
@@ -54,8 +54,9 @@ sap.ui.define([
 				console.log(err);
 			});
 		},
+		//Sync is successfull. What to do now?
 		fnSyncSuccess: function (oData) {
-			//Remove from localPendingTransactions
+
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
 			var db = PouchDB("LocalToDos");
@@ -71,6 +72,7 @@ sap.ui.define([
 				}));
 			});
 
+			//Remove all entries from localPendingTransactions
 			transactionDb.allDocs().then(function (result) {
 				// Promise isn't supported by all browsers; you may want to use bluebird
 				return Promise.all(result.rows.map(function (row) {
@@ -78,6 +80,7 @@ sap.ui.define([
 				}));
 			});
 
+			//Read latest ToDos from server
 			oDataModel.read("/ToDos", {
 				success: function (oData) {
 					jQuery.each(oData.results, function (index, value) {
@@ -85,13 +88,15 @@ sap.ui.define([
 						delete value.__metadata;
 					});
 
+					//Update the local DB
 					db.bulkDocs(oData.results).then(function (result, doc) {
 						console.log("Successfully posted a todo!");
 						// handle result
 					}).catch(function (err) {
 						console.log(err);
 					});
-
+					
+					//Read the local DB and update the JSON model so as to update the screen
 					db.allDocs({
 						include_docs: true,
 						attachments: true
