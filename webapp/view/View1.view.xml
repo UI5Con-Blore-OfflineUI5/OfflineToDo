@@ -23,7 +23,8 @@
 						<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
 							<Title text="{oJSONModel>doc/Content}"/>
 							<ObjectStatus class="sapUiSmallMarginBottom"
-								text="{path:'oJSONModel>doc/DueDate', type:'sap.ui.model.type.Date', formatOptions: { style: 'long'}}"
+								text="{path:'oJSONModel>doc/DueDate', type:'sap.ui.model.type.Date', 
+								formatOptions: { style: 'long', UTC: true}}"
 								state="{path: 'oJSONModel>doc/DueDate', formatter:'.formatter.statusColor'}"/>
 							<Text text="{oJSONModel>doc/LastChangedBy}"/>
 						</VBox>
