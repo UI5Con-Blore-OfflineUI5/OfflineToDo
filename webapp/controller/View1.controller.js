@@ -247,10 +247,11 @@ sap.ui.define([
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var Content = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
 			var Due = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
+			var date = new Date(Date.UTC(Due.getFullYear(), Due.getMonth(), Due.getDate()));
 			var id = evt.getSource().getParent().getBindingContext("oJSONModel").getObject().id;
 			var Data = {
 				"Content": Content,
-				"DueDate": new Date(Due)
+				"DueDate": date
 			};
 
 			//Add to the pendingcount
