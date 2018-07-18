@@ -106,6 +106,10 @@ sap.ui.define([
 						include_docs: true,
 						attachments: true
 					}).then(function (result) {
+						//Convert Date to Date Object
+						jQuery.each(result.rows, function (index, value) {
+							value.doc.DueDate = new Date(value.doc.DueDate);
+						});
 						oJSONModel.setData({
 							"ToDos": result.rows
 						});
@@ -243,11 +247,10 @@ sap.ui.define([
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var Content = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[0].getValue();
 			var Due = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
-			var Done = evt.getSource().getParent().getContent()[0].getItems()[0].getItems()[5].getSelected();
 			var id = evt.getSource().getParent().getBindingContext("oJSONModel").getObject().id;
 			var Data = {
 				"Content": Content,
-				"DueDate": Due
+				"DueDate": new Date(Due)
 			};
 
 			//Add to the pendingcount
@@ -267,8 +270,8 @@ sap.ui.define([
 					_id: id,
 					_rev: doc._rev,
 					Content: Content,
-					Done: Done,
-					DueDate: Due,
+					Done: false,
+					DueDate: new Date(Due),
 					LastChangedBy: doc.LastChangedBy,
 					LastChangedOn: doc.LastChangedOn,
 					id: id
@@ -278,6 +281,10 @@ sap.ui.define([
 					include_docs: true,
 					attachments: true
 				}).then(function (result) {
+					//Convert Date to Date Object
+					jQuery.each(result.rows, function (index, value) {
+						value.doc.DueDate = new Date(value.doc.DueDate);
+					});
 					oJSONModel.setData({
 						"ToDos": result.rows
 					});
@@ -303,7 +310,7 @@ sap.ui.define([
 			var Due = oEvent.getSource().getParent().getContent()[0].getItems()[0].getItems()[2].getDateValue();
 			var Data = {
 				"Content": Content,
-				"DueDate": Due
+				"DueDate": new Date(Due)
 			};
 
 			//Add to the pendingcount
@@ -321,12 +328,16 @@ sap.ui.define([
 			db.put({
 				_id: jQuery.now().toString(),
 				Content: Content,
-				DueDate: Due
+				DueDate: new Date(Due)
 			}).then(function () {
 				db.allDocs({
 					include_docs: true,
 					attachments: true
 				}).then(function (result) {
+					//Convert Date to Date Object
+					jQuery.each(result.rows, function (index, value) {
+						value.doc.DueDate = new Date(value.doc.DueDate);
+					});
 					oJSONModel.setData({
 						"ToDos": result.rows
 					});
@@ -389,6 +400,10 @@ sap.ui.define([
 						include_docs: true,
 						attachments: true
 					}).then(function (result) {
+						//Convert Date to Date Object
+						jQuery.each(result.rows, function (index, value) {
+							value.doc.DueDate = new Date(value.doc.DueDate);
+						});
 						oJSONModel.setData({
 							"ToDos": result.rows
 						});
