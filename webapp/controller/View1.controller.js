@@ -5,13 +5,13 @@ sap.ui.define([
 	"sap/m/GroupHeaderListItem",
 	"UI5ConOfflineApp/formatter/formatter",
 	"sap/m/BusyDialog"
-], function (Controller, GroupHeaderListItem, formatter, BusyDialog) {
+], function(Controller, GroupHeaderListItem, formatter, BusyDialog) {
 	"use strict";
 
 	return Controller.extend("UI5ConOfflineApp.controller.View1", {
 		formatter: formatter,
 
-		fnSync: function () {
+		fnSync: function() {
 			var transactionDb = PouchDB("TransactionDb");
 			var oDataModel = this.getView().getModel();
 
@@ -19,34 +19,34 @@ sap.ui.define([
 			transactionDb.allDocs({
 				include_docs: true,
 				attachments: true
-			}).then(function (result) {
-				jQuery.each(result.rows, function (index, value) {
+			}).then(function(result) {
+				jQuery.each(result.rows, function(index, value) {
 					switch (value.doc.ChangeType) {
-					case "edit":
-						value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
-						oDataModel.update(value.doc.url, value.doc.Payload, {
-							changeSetId: Math.random().toString(36).substring(3)
-						});
-						break;
-					case "create":
-						value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
-						oDataModel.create(value.doc.url, value.doc.Payload, {
-							changeSetId: Math.random().toString(36).substring(3)
-						});
-						break;
-					case "update":
-						delete value.doc.Payload._id;
-						delete value.doc.Payload._rev;
-						value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
-						value.doc.Payload.LastChangedOn = new Date(value.doc.Payload.LastChangedOn);
-						oDataModel.update(value.doc.url, value.doc.Payload, {
-							changeSetId: Math.random().toString(36).substring(3)
-						});
-						break;
+						case "edit":
+							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
+							oDataModel.update(value.doc.url, value.doc.Payload, {
+								changeSetId: Math.random().toString(36).substring(3)
+							});
+							break;
+						case "create":
+							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
+							oDataModel.create(value.doc.url, value.doc.Payload, {
+								changeSetId: Math.random().toString(36).substring(3)
+							});
+							break;
+						case "update":
+							delete value.doc.Payload._id;
+							delete value.doc.Payload._rev;
+							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
+							value.doc.Payload.LastChangedOn = new Date(value.doc.Payload.LastChangedOn);
+							oDataModel.update(value.doc.url, value.doc.Payload, {
+								changeSetId: Math.random().toString(36).substring(3)
+							});
+							break;
 					}
 				});
 
-				oDataModel.attachEventOnce("batchRequestSent", function () {
+				oDataModel.attachEventOnce("batchRequestSent", function() {
 					this._BusyDialog.open();
 				}.bind(this));
 				oDataModel.attachEventOnce("batchRequestCompleted", this.fnSyncSuccess.bind(this));
@@ -58,12 +58,12 @@ sap.ui.define([
 					success: this.fnSyncSuccess.bind(this),
 					error: this.fnSyncFailure
 				});
-			}.bind(this)).catch(function (err) {
+			}.bind(this)).catch(function(err) {
 				console.log(err);
 			});
 		},
 		//Sync is successfull. What to do now?
-		fnSyncSuccess: function (oData) {
+		fnSyncSuccess: function(oData) {
 			this._BusyDialog.close();
 
 			var oJSONModel = this.getView().getModel("oJSONModel");
@@ -75,25 +75,25 @@ sap.ui.define([
 			this.fnMarkSyncComplete();
 
 			// 
-			db.allDocs().then(function (result) {
+			db.allDocs().then(function(result) {
 				// Promise isn"t supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function (row) {
+				return Promise.all(result.rows.map(function(row) {
 					return db.remove(row.id, row.value.rev);
 				}));
 			});
 
 			//Remove all entries from localPendingTransactions
-			transactionDb.allDocs().then(function (result) {
+			transactionDb.allDocs().then(function(result) {
 				// Promise isn't supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function (row) {
+				return Promise.all(result.rows.map(function(row) {
 					return transactionDb.remove(row.id, row.value.rev);
 				}));
 			});
 
 			//Read latest ToDos from server
 			oDataModel.read("/ToDos", {
-				success: function (oData) {
-					jQuery.each(oData.results, function (index, value) {
+				success: function(oData) {
+					jQuery.each(oData.results, function(index, value) {
 						value._id = value.id;
 						delete value.__metadata;
 					});
@@ -105,9 +105,9 @@ sap.ui.define([
 					db.allDocs({
 						include_docs: true,
 						attachments: true
-					}).then(function (result) {
+					}).then(function(result) {
 						//Convert Date to Date Object
-						jQuery.each(result.rows, function (index, value) {
+						jQuery.each(result.rows, function(index, value) {
 							value.doc.DueDate = new Date(value.doc.DueDate);
 						});
 						oJSONModel.setData({
@@ -116,19 +116,19 @@ sap.ui.define([
 					});
 
 				}.bind(this),
-				error: function () {}
+				error: function() {}
 			});
 		},
-		fnSyncFailure: function (oError) {
+		fnSyncFailure: function(oError) {
 			this._BusyDialog.close();
 			//Inform the user
 		},
-		fnMarkSyncComplete: function () {
+		fnMarkSyncComplete: function() {
 			var currentData = this.getView().getModel("onlineModel").getData();
 			currentData.pendingTransactions = 0;
 			this.getView().getModel("onlineModel").setData(currentData);
 		},
-		fnIncreasePendingSyncCount: function () {
+		fnIncreasePendingSyncCount: function() {
 			var currentData = this.getView().getModel("onlineModel").getData();
 			if (currentData.pendingTransactions === undefined) {
 				currentData.pendingTransactions = 0;
@@ -136,22 +136,22 @@ sap.ui.define([
 			currentData.pendingTransactions = currentData.pendingTransactions + 1;
 			this.getView().getModel("onlineModel").setData(currentData);
 		},
-		fnIsOnline: function () {
+		fnIsOnline: function() {
 			var that = this;
-			window.addEventListener("offline", function () {
+			window.addEventListener("offline", function() {
 				var currentData = that.getView().getModel("onlineModel").getData();
 				currentData.status = "Offline";
 				currentData.enableSync = false;
 				that.getView().getModel("onlineModel").setData(currentData);
 			});
-			window.addEventListener("online", function () {
+			window.addEventListener("online", function() {
 				var currentData = that.getView().getModel("onlineModel").getData();
 				currentData.status = "Online";
 				currentData.enableSync = true;
 				that.getView().getModel("onlineModel").setData(currentData);
 			});
 		},
-		fnCurrentStatus: function () {
+		fnCurrentStatus: function() {
 			//Current Status
 			var currentData = this.getView().getModel("onlineModel").getData();
 			if (window.navigator.onLine) {
@@ -163,7 +163,7 @@ sap.ui.define([
 			}
 			this.getView().getModel("onlineModel").setData(currentData);
 		},
-		onInit: function () {
+		onInit: function() {
 			//Create required DBs
 			// var db = new PouchDB("LocalToDos");
 			// var transactionDb = new PouchDB("TransactionDb");
@@ -174,43 +174,43 @@ sap.ui.define([
 			//Online Status
 			this.fnIsOnline();
 		},
-		onBeforeRendering: function () {
+		onBeforeRendering: function() {
 			this.fnCurrentStatus();
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			var oDataModel = this.getView().getModel();
 			var db = PouchDB("LocalToDos");
 			var transactionDb = PouchDB("TransactionDb");
-			db.allDocs().then(function (result) {
+			db.allDocs().then(function(result) {
 				// Promise isn't supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function (row) {
+				return Promise.all(result.rows.map(function(row) {
 					return db.remove(row.id, row.value.rev);
 				}));
 			});
 
-			transactionDb.allDocs().then(function (result) {
+			transactionDb.allDocs().then(function(result) {
 				// Promise isn't supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function (row) {
+				return Promise.all(result.rows.map(function(row) {
 					return transactionDb.remove(row.id, row.value.rev);
 				}));
 			});
 
 			oDataModel.read("/ToDos", {
-				success: function (oData) {
-					jQuery.each(oData.results, function (index, value) {
+				success: function(oData) {
+					jQuery.each(oData.results, function(index, value) {
 						value._id = value.id; //Storing backend key as _id for PouchDB record
 						delete value.__metadata; //delete unecessary data
 					});
-					
+
 					//Store everything in local DB
 					db.bulkDocs(oData.results);
-					
+
 					//From local db store them into JSON model
 					db.allDocs({
 						include_docs: true,
 						attachments: true
-					}).then(function (result) {
+					}).then(function(result) {
 						//Convert Date to Date Object
-						jQuery.each(result.rows, function (index, value) {
+						jQuery.each(result.rows, function(index, value) {
 							value.doc.DueDate = new Date(value.doc.DueDate);
 						});
 
@@ -219,7 +219,7 @@ sap.ui.define([
 						});
 					});
 				}.bind(this),
-				error: function (response) {}
+				error: function(response) {}
 			});
 
 			//All sync calls are deferred
@@ -231,14 +231,14 @@ sap.ui.define([
 			});
 			this.getView().getModel().setDeferredGroups(["sync"]);
 		},
-		handleNewToDoButtonPress: function () {
+		handleNewToDoButtonPress: function() {
 			var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDoNew", this.getView().getController());
 			//Bind Data
 			this.getView().addDependent(oToDoDialog);
 			oToDoDialog.open();
 		},
 		//Editing and Saving an existing ToDo
-		fnSaveEdit: function (evt) {
+		fnSaveEdit: function(evt) {
 			var transactionDb = PouchDB("TransactionDb");
 			var db = PouchDB("LocalToDos");
 			var oJSONModel = this.getView().getModel("oJSONModel");
@@ -263,7 +263,7 @@ sap.ui.define([
 			});
 
 			//Update the local DB record
-			db.get(id).then(function (doc) {
+			db.get(id).then(function(doc) {
 				return db.put({
 					_id: id,
 					_rev: doc._rev,
@@ -274,13 +274,13 @@ sap.ui.define([
 					LastChangedOn: doc.LastChangedOn,
 					id: id
 				});
-			}.bind(this)).then(function (response) {
+			}.bind(this)).then(function(response) {
 				db.allDocs({
 					include_docs: true,
 					attachments: true
-				}).then(function (result) {
+				}).then(function(result) {
 					//Convert Date to Date Object
-					jQuery.each(result.rows, function (index, value) {
+					jQuery.each(result.rows, function(index, value) {
 						value.doc.DueDate = new Date(value.doc.DueDate);
 					});
 					oJSONModel.setData({
@@ -299,7 +299,7 @@ sap.ui.define([
 			evt.getSource().getParent().close();
 		},
 		//New ToDO added
-		fnSave: function (oEvent) {
+		fnSave: function(oEvent) {
 			var transactionDb = PouchDB("TransactionDb");
 			var db = PouchDB("LocalToDos");
 
@@ -328,13 +328,13 @@ sap.ui.define([
 				_id: jQuery.now().toString(),
 				Content: Content,
 				DueDate: new Date(Due)
-			}).then(function () {
+			}).then(function() {
 				db.allDocs({
 					include_docs: true,
 					attachments: true
-				}).then(function (result) {
+				}).then(function(result) {
 					//Convert Date to Date Object
-					jQuery.each(result.rows, function (index, value) {
+					jQuery.each(result.rows, function(index, value) {
 						value.doc.DueDate = new Date(value.doc.DueDate);
 					});
 					oJSONModel.setData({
@@ -354,7 +354,7 @@ sap.ui.define([
 		},
 
 		//When ToDo is clicked upon
-		fnEditToDo: function () {
+		fnEditToDo: function() {
 			if (!this.oToDoDialog) {
 				this.oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDo", this.getView().getController());
 			}
@@ -370,7 +370,7 @@ sap.ui.define([
 		},
 
 		//When "Done" checkbox was selected
-		fnToDoDone: function (oEvent) {
+		fnToDoDone: function(oEvent) {
 			var transactionDb = PouchDB("TransactionDb");
 			var db = PouchDB("LocalToDos");
 			var id = oEvent.getSource().getParent().getBindingContext("oJSONModel").getObject().doc._id;
@@ -379,7 +379,6 @@ sap.ui.define([
 			var oJSONModel = this.getView().getModel("oJSONModel");
 			this.getView().getModel("oJSONModel").getProperty(Path).doc.Done = true;
 			var Payload = this.getView().getModel("oJSONModel").getProperty(Path);
-
 			//Add to the pendingcount
 			this.fnIncreasePendingSyncCount();
 
@@ -391,21 +390,25 @@ sap.ui.define([
 				url: "/ToDos('" + itemId + "')"
 			});
 
-			db.get(id).then(function (doc) {
+			db.get(id).then(function(doc) {
 				//Remove the 'Done' ToDo
-				db.remove(id, doc._rev).then(function () {
+				db.remove(id, doc._rev).then(function() {
 					//Refresh the ToDo list on the screen from local DB
 					db.allDocs({
 						include_docs: true,
 						attachments: true
-					}).then(function (result) {
+					}).then(function(result) {
 						//Convert Date to Date Object
-						jQuery.each(result.rows, function (index, value) {
+						jQuery.each(result.rows, function(index, value) {
 							value.doc.DueDate = new Date(value.doc.DueDate);
+						});
+						oJSONModel.setData({
+							"ToDos": null
 						});
 						oJSONModel.setData({
 							"ToDos": result.rows
 						});
+
 					});
 				});
 			});
@@ -417,7 +420,7 @@ sap.ui.define([
 		},
 
 		//Closing the Pop-up
-		fnClose: function (evt) {
+		fnClose: function(evt) {
 			evt.getSource().getParent().close();
 		}
 	});
