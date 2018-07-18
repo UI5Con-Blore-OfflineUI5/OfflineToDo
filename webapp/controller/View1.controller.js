@@ -197,15 +197,14 @@ sap.ui.define([
 			oDataModel.read("/ToDos", {
 				success: function (oData) {
 					jQuery.each(oData.results, function (index, value) {
-						value._id = value.id;
-						delete value.__metadata;
+						value._id = value.id; //Storing backend key as _id for PouchDB record
+						delete value.__metadata; //delete unecessary data
 					});
-					db.bulkDocs(oData.results).then(function (result, doc) {
-						console.log("Successfully posted a todo!");
-						// handle result
-					}).catch(function (err) {
-						console.log(err);
-					});
+					
+					//Store everything in local DB
+					db.bulkDocs(oData.results);
+					
+					//From local db store them into JSON model
 					db.allDocs({
 						include_docs: true,
 						attachments: true
@@ -218,8 +217,6 @@ sap.ui.define([
 						oJSONModel.setData({
 							"ToDos": result.rows
 						});
-					}).catch(function (err) {
-						console.log(err);
 					});
 				}.bind(this),
 				error: function (response) {}
