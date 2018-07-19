@@ -7,7 +7,7 @@
 		</VBox>
 	</FlexBox>
 	<beginButton>
-		<Button text="Save" type="Emphasized" press="fnSave"/>
+		<Button text="Save" type="Emphasized" press="fnSaveNew"/>
 	</beginButton>
 	<endButton>
 		<Button text="Cancel" press=".fnClose"/>
