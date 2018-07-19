@@ -165,8 +165,8 @@ sap.ui.define([
 		},
 		onInit: function() {
 			//Create required DBs
-			// var db = new PouchDB("LocalToDos");
-			// var transactionDb = new PouchDB("TransactionDb");
+			var db = new PouchDB("LocalToDos");
+			var transactionDb = new PouchDB("TransactionDb");
 			this._BusyDialog = new BusyDialog({
 				text: "Syncing"
 			});
