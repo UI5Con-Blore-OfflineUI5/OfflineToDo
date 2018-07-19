@@ -11,179 +11,20 @@ sap.ui.define([
 	return Controller.extend("UI5ConOfflineApp.controller.View1", {
 		formatter: formatter,
 
-		fnSync: function() {
-			var transactionDb = PouchDB("TransactionDb");
-			var oDataModel = this.getView().getModel();
-
-			//Fetch pending changes to be synced
-			transactionDb.allDocs({
-				include_docs: true,
-				attachments: true
-			}).then(function(result) {
-				jQuery.each(result.rows, function(index, value) {
-					switch (value.doc.ChangeType) {
-						case "edit":
-							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
-							oDataModel.update(value.doc.url, value.doc.Payload, {
-								changeSetId: Math.random().toString(36).substring(3)
-							});
-							break;
-						case "create":
-							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
-							oDataModel.create(value.doc.url, value.doc.Payload, {
-								changeSetId: Math.random().toString(36).substring(3)
-							});
-							break;
-						case "update":
-							delete value.doc.Payload._id;
-							delete value.doc.Payload._rev;
-							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
-							value.doc.Payload.LastChangedOn = new Date(value.doc.Payload.LastChangedOn);
-							oDataModel.update(value.doc.url, value.doc.Payload, {
-								changeSetId: Math.random().toString(36).substring(3)
-							});
-							break;
-					}
-				});
-
-				oDataModel.attachEventOnce("batchRequestSent", function() {
-					this._BusyDialog.open();
-				}.bind(this));
-				oDataModel.attachEventOnce("batchRequestCompleted", this.fnSyncSuccess.bind(this));
-				oDataModel.attachEventOnce("batchRequestFailed", this.fnSyncFailure.bind(this));
-
-				//Send to backed
-				oDataModel.submitChanges({
-					groupId: "sync", //If no groupID mentioned, then all groups are submitted"
-					success: this.fnSyncSuccess.bind(this),
-					error: this.fnSyncFailure
-				});
-			}.bind(this)).catch(function(err) {
-				console.log(err);
-			});
-		},
-		//Sync is successfull. What to do now?
-		fnSyncSuccess: function(oData) {
-			this._BusyDialog.close();
-
-			var oJSONModel = this.getView().getModel("oJSONModel");
-			var oDataModel = this.getView().getModel();
-			var db = PouchDB("LocalToDos");
-			var transactionDb = PouchDB("TransactionDb");
-			db.compact().then(function(result) {
-				// handle result
-			}).catch(function(err) {
-				console.log(err);
-			});
-			
-			transactionDb.compact().then(function(result) {
-				// handle result
-			}).catch(function(err) {
-				console.log(err);
-			});
-			//Clear count
-			this.fnMarkSyncComplete();
-
-			// 
-			db.allDocs().then(function(result) {
-				// Promise isn"t supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function(row) {
-					return db.remove(row.id, row.value.rev);
-				}));
-			});
-
-			//Remove all entries from localPendingTransactions
-			transactionDb.allDocs().then(function(result) {
-				// Promise isn't supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function(row) {
-					return transactionDb.remove(row.id, row.value.rev);
-				}));
-			});
-
-			//Read latest ToDos from server
-			oDataModel.read("/ToDos", {
-				success: function(oData) {
-					jQuery.each(oData.results, function(index, value) {
-						value._id = value.id;
-						delete value.__metadata;
-					});
-
-					//Update the local DB
-					db.bulkDocs(oData.results);
-
-					//Read the local DB and update the JSON model so as to update the screen
-					db.allDocs({
-						include_docs: true,
-						attachments: true
-					}).then(function(result) {
-						//Convert Date to Date Object
-						jQuery.each(result.rows, function(index, value) {
-							value.doc.DueDate = new Date(value.doc.DueDate);
-						});
-						oJSONModel.setData({
-							"ToDos": result.rows
-						});
-					});
-
-				}.bind(this),
-				error: function() {}
-			});
-		},
-		fnSyncFailure: function(oError) {
-			this._BusyDialog.close();
-			//Inform the user
-		},
-		fnMarkSyncComplete: function() {
-			var currentData = this.getView().getModel("onlineModel").getData();
-			currentData.pendingTransactions = 0;
-			this.getView().getModel("onlineModel").setData(currentData);
-		},
-		fnIncreasePendingSyncCount: function() {
-			var currentData = this.getView().getModel("onlineModel").getData();
-			if (currentData.pendingTransactions === undefined) {
-				currentData.pendingTransactions = 0;
-			}
-			currentData.pendingTransactions = currentData.pendingTransactions + 1;
-			this.getView().getModel("onlineModel").setData(currentData);
-		},
-		fnIsOnline: function() {
-			var that = this;
-			window.addEventListener("offline", function() {
-				var currentData = that.getView().getModel("onlineModel").getData();
-				currentData.status = "Offline";
-				currentData.enableSync = false;
-				that.getView().getModel("onlineModel").setData(currentData);
-			});
-			window.addEventListener("online", function() {
-				var currentData = that.getView().getModel("onlineModel").getData();
-				currentData.status = "Online";
-				currentData.enableSync = true;
-				that.getView().getModel("onlineModel").setData(currentData);
-			});
-		},
-		fnCurrentStatus: function() {
-			//Current Status
-			var currentData = this.getView().getModel("onlineModel").getData();
-			if (window.navigator.onLine) {
-				currentData.status = "Online";
-				currentData.enableSync = true;
-			} else {
-				currentData.status = "Offline";
-				currentData.enableSync = false;
-			}
-			this.getView().getModel("onlineModel").setData(currentData);
-		},
 		onInit: function() {
 			//Create required DBs
-			var db = new PouchDB("LocalToDos");
-			var transactionDb = new PouchDB("TransactionDb");
+			PouchDB("LocalToDos");
+			PouchDB("TransactionDb");
+			
+			//Busy dialog while syncing
 			this._BusyDialog = new BusyDialog({
 				text: "Syncing"
 			});
 
-			//Online Status
+			//Listen for Online/Offline Status
 			this.fnIsOnline();
 		},
+		
 		onBeforeRendering: function() {
 			this.fnCurrentStatus();
 			var oJSONModel = this.getView().getModel("oJSONModel");
@@ -216,8 +57,8 @@ sap.ui.define([
 
 					//From local db store them into JSON model
 					db.allDocs({
-						include_docs: true
-					//	attachments: true
+						include_docs: true,
+						attachments: true
 					}).then(function(result) {
 						//Convert Date to Date Object
 						jQuery.each(result.rows, function(index, value) {
@@ -241,12 +82,46 @@ sap.ui.define([
 			});
 			this.getView().getModel().setDeferredGroups(["sync"]);
 		},
+		
+		//Handle online-offline events to show the user
+		fnIsOnline: function() {
+			var that = this;
+			window.addEventListener("offline", function() {
+				var currentData = that.getView().getModel("onlineModel").getData();
+				currentData.status = "Offline";
+				currentData.enableSync = false;
+				that.getView().getModel("onlineModel").setData(currentData);
+			});
+			window.addEventListener("online", function() {
+				var currentData = that.getView().getModel("onlineModel").getData();
+				currentData.status = "Online";
+				currentData.enableSync = true;
+				that.getView().getModel("onlineModel").setData(currentData);
+			});
+		},
+		
+		//Get current online status
+		fnCurrentStatus: function() {
+			//Current Status
+			var currentData = this.getView().getModel("onlineModel").getData();
+			if (window.navigator.onLine) {
+				currentData.status = "Online";
+				currentData.enableSync = true;
+			} else {
+				currentData.status = "Offline";
+				currentData.enableSync = false;
+			}
+			this.getView().getModel("onlineModel").setData(currentData);
+		},
+		
+		//Plus button is clicked upon
 		handleNewToDoButtonPress: function() {
 			var oToDoDialog = sap.ui.xmlfragment("UI5ConOfflineApp.fragments.ToDoNew", this.getView().getController());
 			//Bind Data
 			this.getView().addDependent(oToDoDialog);
 			oToDoDialog.open();
 		},
+		
 		//Editing and Saving an existing ToDo
 		fnSaveEdit: function(evt) {
 			var transactionDb = PouchDB("TransactionDb");
@@ -308,6 +183,7 @@ sap.ui.define([
 			// Close the pop-up
 			evt.getSource().getParent().close();
 		},
+		
 		//New ToDO added
 		fnSave: function(oEvent) {
 			var transactionDb = PouchDB("TransactionDb");
@@ -427,6 +303,138 @@ sap.ui.define([
 			if (currentData.status === "Online") {
 				this.fnSync();
 			}
+		},
+
+		//Increase pending transactions count
+		fnIncreasePendingSyncCount: function() {
+			var currentData = this.getView().getModel("onlineModel").getData();
+			if (currentData.pendingTransactions === undefined) {
+				currentData.pendingTransactions = 0;
+			}
+			currentData.pendingTransactions = currentData.pendingTransactions + 1;
+			this.getView().getModel("onlineModel").setData(currentData);
+		},
+
+		//Sync with backend
+		fnSync: function() {
+			var transactionDb = PouchDB("TransactionDb");
+			var oDataModel = this.getView().getModel();
+
+			//Fetch pending changes to be synced
+			transactionDb.allDocs({
+				include_docs: true,
+				attachments: true
+			}).then(function(result) {
+				jQuery.each(result.rows, function(index, value) {
+					switch (value.doc.ChangeType) {
+						case "edit":
+							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
+							oDataModel.update(value.doc.url, value.doc.Payload, {
+								changeSetId: Math.random().toString(36).substring(3)
+							});
+							break;
+						case "create":
+							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
+							oDataModel.create(value.doc.url, value.doc.Payload, {
+								changeSetId: Math.random().toString(36).substring(3)
+							});
+							break;
+						case "update":
+							delete value.doc.Payload._id;
+							delete value.doc.Payload._rev;
+							value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
+							value.doc.Payload.LastChangedOn = new Date(value.doc.Payload.LastChangedOn);
+							oDataModel.update(value.doc.url, value.doc.Payload, {
+								changeSetId: Math.random().toString(36).substring(3)
+							});
+							break;
+					}
+				});
+
+				oDataModel.attachEventOnce("batchRequestSent", function() {
+					this._BusyDialog.open();
+				}.bind(this));
+				oDataModel.attachEventOnce("batchRequestCompleted", this.fnSyncSuccess.bind(this));
+				oDataModel.attachEventOnce("batchRequestFailed", this.fnSyncFailure.bind(this));
+
+				//Send to backed
+				oDataModel.submitChanges({
+					groupId: "sync",
+					success: this.fnSyncSuccess.bind(this),
+					error: this.fnSyncFailure
+				});
+			}.bind(this)).catch(function(err) {
+				console.log(err);
+			});
+		},
+		
+		//Sync is successfull. What to do now?
+		fnSyncSuccess: function(oData) {
+			this._BusyDialog.close();
+
+			var oJSONModel = this.getView().getModel("oJSONModel");
+			var oDataModel = this.getView().getModel();
+			var db = PouchDB("LocalToDos");
+			var transactionDb = PouchDB("TransactionDb");
+
+			//Clear count
+			this.fnMarkSyncComplete();
+
+			// 
+			db.allDocs().then(function(result) {
+				// Promise isn"t supported by all browsers; you may want to use bluebird
+				return Promise.all(result.rows.map(function(row) {
+					return db.remove(row.id, row.value.rev);
+				}));
+			});
+
+			//Remove all entries from localPendingTransactions
+			transactionDb.allDocs().then(function(result) {
+				// Promise isn't supported by all browsers; you may want to use bluebird
+				return Promise.all(result.rows.map(function(row) {
+					return transactionDb.remove(row.id, row.value.rev);
+				}));
+			});
+
+			//Read latest ToDos from server
+			oDataModel.read("/ToDos", {
+				success: function(oData) {
+					jQuery.each(oData.results, function(index, value) {
+						value._id = value.id;
+						delete value.__metadata;
+					});
+
+					//Update the local DB
+					db.bulkDocs(oData.results);
+
+					//Read the local DB and update the JSON model so as to update the screen
+					db.allDocs({
+						include_docs: true,
+						attachments: true
+					}).then(function(result) {
+						//Convert Date to Date Object
+						jQuery.each(result.rows, function(index, value) {
+							value.doc.DueDate = new Date(value.doc.DueDate);
+						});
+						oJSONModel.setData({
+							"ToDos": result.rows
+						});
+					});
+
+				}.bind(this),
+				error: function() {}
+			});
+		},
+		fnSyncFailure: function(oError) {
+			this._BusyDialog.close();
+			//Inform the user
+		},
+		
+		//Clear pending transaction count
+		fnMarkSyncComplete: function() {
+			var currentData = this.getView().getModel("onlineModel").getData();
+			currentData.pendingTransactions = 0;
+			this.getView().getModel("onlineModel").setData(currentData);
 		},
 
 		//Closing the Pop-up
