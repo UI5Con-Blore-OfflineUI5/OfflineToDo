@@ -259,7 +259,7 @@ sap.ui.define([
 			transactionDb.put({
 				_id: Payload.doc.id,
 				Payload: Payload.doc,
-				ChangeType: "update",
+				ChangeType: "done",
 				url: "/ToDos('" + itemId + "')"
 			});
 
@@ -325,7 +325,7 @@ sap.ui.define([
 							changeSetId: Math.random().toString(36).substring(3)
 						});
 						break;
-					case "update":
+					case "done":  //When 'Done' is selected
 						delete value.doc.Payload._id;
 						delete value.doc.Payload._rev;
 						value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
