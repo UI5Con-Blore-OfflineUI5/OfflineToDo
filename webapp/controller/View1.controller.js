@@ -269,7 +269,7 @@ sap.ui.define([
 					_rev: doc._rev,
 					Content: Content,
 					Done: false,
-					DueDate: new Date(Due),
+					DueDate: date,
 					LastChangedBy: doc.LastChangedBy,
 					LastChangedOn: doc.LastChangedOn,
 					id: id
@@ -327,7 +327,7 @@ sap.ui.define([
 			db.put({
 				_id: jQuery.now().toString(),
 				Content: Content,
-				DueDate: new Date(Due)
+				DueDate: date
 			}).then(function() {
 				db.allDocs({
 					include_docs: true,
