@@ -70,6 +70,11 @@ sap.ui.define([
 			var oDataModel = this.getView().getModel();
 			var db = PouchDB("LocalToDos");
 			var transactionDb = PouchDB("TransactionDb");
+			db.compact().then(function(result) {
+				// handle result
+			}).catch(function(err) {
+				console.log(err);
+			});
 
 			//Clear count
 			this.fnMarkSyncComplete();
