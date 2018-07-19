@@ -326,8 +326,8 @@ sap.ui.define([
 						});
 						break;
 					case "done":  //When 'Done' is selected
-						delete value.doc.Payload._id;
-						delete value.doc.Payload._rev;
+						delete value.doc.Payload._id;  //not required for GW server
+						delete value.doc.Payload._rev; //not required for GW server
 						value.doc.Payload.DueDate = new Date(value.doc.Payload.DueDate);
 						value.doc.Payload.LastChangedOn = new Date(value.doc.Payload.LastChangedOn);
 						oDataModel.update(value.doc.url, value.doc.Payload, {
