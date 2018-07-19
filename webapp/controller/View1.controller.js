@@ -55,59 +55,28 @@ sap.ui.define([
 			}
 			this.getView().getModel("onlineModel").setData(currentData);
 		},
-		
-		onBeforeRendering: function () {
-			//Get current status
-			this.fnCurrentStatus();
 
-			//Get references to models
-			var oJSONModel = this.getView().getModel("oJSONModel");
-			var oDataModel = this.getView().getModel();
-
-			//Get instance of created Pouch DBs
-			var db = new PouchDB("LocalToDos");
-			
-			//Reusable function to copy data from local db to JSON model
-			function localDBtoJSONModel() {
-				//From local db store them into JSON model
-				db.allDocs({
-					include_docs: true,
-					attachments: true
-				}).then(function (result) {
-					//Convert Date to Date Object
-					jQuery.each(result.rows, function (index, value) {
-						value.doc.DueDate = new Date(value.doc.DueDate);
-					});
-
-					oJSONModel.setData({
-						"ToDos": result.rows
-					});
+		//Reusable function to copy data from local db to JSON model
+		localDBtoJSONModel: function (db, oJSONModel) {
+			//From local db store them into JSON model
+			db.allDocs({
+				include_docs: true,
+				attachments: true
+			}).then(function (result) {
+				//Convert Date to Date Object
+				jQuery.each(result.rows, function (index, value) {
+					value.doc.DueDate = new Date(value.doc.DueDate);
 				});
-			}
 
-			//Make a server call if possible
-			oDataModel.read("/ToDos", {
-				success: function (oData) {
-					//We have latest records from server. So getrid of local ToDos
-					db.allDocs().then(function (result) {
-						return Promise.all(result.rows.map(function (row) {
-							return db.remove(row.id, row.value.rev);
-						}));
-					});
-
-					jQuery.each(oData.results, function (index, value) {
-						value._id = value.id; //Storing backend key as _id for PouchDB record
-						delete value.__metadata; //delete unecessary data
-					});
-
-					//Store everything in local DB
-					db.bulkDocs(oData.results)
-					//From localDB, move it to JSON model
-					.then(localDBtoJSONModel());
-
-				}.bind(this),
-				error: localDBtoJSONModel //if server is not available, then get the data from local db
+				oJSONModel.setData({
+					"ToDos": result.rows
+				});
 			});
+		},
+
+		onBeforeRendering: function () {
+			//Get current online status
+			this.fnCurrentStatus();
 
 			//All sync calls are deferred
 			this.getView().getModel().setChangeGroups({
@@ -117,6 +86,39 @@ sap.ui.define([
 				}
 			});
 			this.getView().getModel().setDeferredGroups(["sync"]);
+
+			//Sync pending calls
+			this.fnSync();
+		},
+
+		//Load ToDos from Server, or if offline from local DB		
+		fnLoadToDosFromServer: function () {
+			var oDataModel = this.getView().getModel();
+			var oJSONModel = this.getView().getModel("oJSONModel");
+
+			//Get instance of created Pouch DBs
+			var db = PouchDB("LocalToDos");
+			//Make a server call if possible
+			oDataModel.read("/ToDos", {
+				success: function (oData) {
+
+					jQuery.each(oData.results, function (index, value) {
+						value._id = value.id; //Storing backend key as _id for PouchDB record
+						delete value.__metadata; //delete unecessary data
+					});
+
+					//We have latest records from server. So getrid of local ToDos
+					//Store everything in local DB
+					db.destroy().then(function () {
+						db = new PouchDB("LocalToDos");
+						db.bulkDocs(oData.results)
+							//From localDB, move it to JSON model
+							.then(this.localDBtoJSONModel(db, oJSONModel));
+					}.bind(this));
+
+				}.bind(this),
+				error: this.localDBtoJSONModel //if server is not available, then get the data from local db
+			});
 		},
 
 		//Plus button is clicked upon. Show the pop-up
@@ -154,23 +156,12 @@ sap.ui.define([
 
 			//Update the local DB, to add the new ToDo
 			db.put({
-				_id: jQuery.now().toString(),
-				Content: Content,
-				DueDate: date
-			}).then(function () {
-				db.allDocs({
-					include_docs: true,
-					attachments: true
-				}).then(function (result) {
-					//Convert Date to Date Object
-					jQuery.each(result.rows, function (index, value) {
-						value.doc.DueDate = new Date(value.doc.DueDate);
-					});
-					oJSONModel.setData({
-						"ToDos": result.rows
-					});
-				});
-			});
+					_id: jQuery.now().toString(),
+					Content: Content,
+					DueDate: date
+				})
+				//Update the JSON model from local DB
+				.then(this.localDBtoJSONModel(db, oJSONModel));
 
 			//If Online- run sync right away
 			var currentData = this.getView().getModel("onlineModel").getData();
@@ -181,7 +172,7 @@ sap.ui.define([
 			// Close the pop-up
 			oEvent.getSource().getParent().close();
 		},
-		
+
 		//When ToDo is clicked upon for editing, show the pop-up
 		fnEditToDo: function () {
 			if (!this.oToDoDialog) {
@@ -196,8 +187,8 @@ sap.ui.define([
 			this.oToDoDialog.open();
 			//Unselect the item, so that it can be selected again
 			oList.setSelectedItem(oSelectedItem, false);
-		},		
-		
+		},
+
 		//Saving an existing ToDo
 		fnSaveEdit: function (evt) {
 			var transactionDb = PouchDB("TransactionDb");
@@ -226,28 +217,17 @@ sap.ui.define([
 			//Update the local DB record
 			db.get(id).then(function (doc) {
 				return db.put({
-					_id: id,
-					_rev: doc._rev,
-					Content: Content,
-					Done: false,
-					DueDate: date,
-					LastChangedBy: doc.LastChangedBy,
-					LastChangedOn: doc.LastChangedOn,
-					id: id
-				});
-			}.bind(this)).then(function (response) {
-				db.allDocs({
-					include_docs: true,
-					attachments: true
-				}).then(function (result) {
-					//Convert Date to Date Object
-					jQuery.each(result.rows, function (index, value) {
-						value.doc.DueDate = new Date(value.doc.DueDate);
-					});
-					oJSONModel.setData({
-						"ToDos": result.rows
-					});
-				});
+						_id: id,
+						_rev: doc._rev,
+						Content: Content,
+						Done: false,
+						DueDate: date,
+						LastChangedBy: doc.LastChangedBy,
+						LastChangedOn: doc.LastChangedOn,
+						id: id
+					})
+					//Update the JSON model from local DB
+					.then(this.localDBtoJSONModel(db, oJSONModel));
 			}.bind(this));
 
 			//If Online- run sync right away
@@ -264,6 +244,8 @@ sap.ui.define([
 		fnToDoDone: function (oEvent) {
 			var transactionDb = PouchDB("TransactionDb");
 			var db = PouchDB("LocalToDos");
+
+			//Collect
 			var id = oEvent.getSource().getParent().getBindingContext("oJSONModel").getObject().doc._id;
 			var itemId = oEvent.getSource().getParent().getBindingContext("oJSONModel").getObject().doc.id;
 			var Path = oEvent.getSource().getParent().getBindingContext("oJSONModel").sPath;
@@ -299,7 +281,6 @@ sap.ui.define([
 						oJSONModel.setData({
 							"ToDos": result.rows
 						});
-
 					});
 				});
 			});
@@ -362,75 +343,38 @@ sap.ui.define([
 				oDataModel.attachEventOnce("batchRequestCompleted", this.fnSyncSuccess.bind(this));
 				oDataModel.attachEventOnce("batchRequestFailed", this.fnSyncFailure.bind(this));
 
-				//Send to backed
-				oDataModel.submitChanges({
-					groupId: "sync",
-					success: this.fnSyncSuccess.bind(this),
-					error: this.fnSyncFailure
-				});
-			}.bind(this)).catch(function (err) {
-				console.log(err);
-			});
+				if (oDataModel.hasPendingChanges()) {
+					//Send to backend
+					oDataModel.submitChanges({
+						groupId: "sync",
+						success: this.fnSyncSuccess.bind(this),
+						error: this.fnSyncFailure
+					});
+				} else {
+					this.fnSyncSuccess();
+				}
+			}.bind(this));
 		},
 
 		//Sync is successfull. What to do now?
-		fnSyncSuccess: function (oData) {
+		fnSyncSuccess: function () {
 			this._BusyDialog.close();
 
-			var oJSONModel = this.getView().getModel("oJSONModel");
-			var oDataModel = this.getView().getModel();
-			var db = PouchDB("LocalToDos");
-			var transactionDb = PouchDB("TransactionDb");
-
-			//Clear count
+			//Clear pending transaction count
 			this.fnMarkSyncComplete();
 
-			// 
-			db.allDocs().then(function (result) {
-				// Promise isn"t supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function (row) {
-					return db.remove(row.id, row.value.rev);
-				}));
-			});
-
 			//Remove all entries from localPendingTransactions
-			transactionDb.allDocs().then(function (result) {
-				// Promise isn't supported by all browsers; you may want to use bluebird
-				return Promise.all(result.rows.map(function (row) {
-					return transactionDb.remove(row.id, row.value.rev);
-				}));
+			var transactionDb = PouchDB("TransactionDb");
+			transactionDb.destroy().then(function(){
+				transactionDb = new PouchDB("TransactionDb");	
 			});
 
-			//Read latest ToDos from server
-			oDataModel.read("/ToDos", {
-				success: function (oData) {
-					jQuery.each(oData.results, function (index, value) {
-						value._id = value.id;
-						delete value.__metadata;
-					});
-
-					//Update the local DB
-					db.bulkDocs(oData.results);
-
-					//Read the local DB and update the JSON model so as to update the screen
-					db.allDocs({
-						include_docs: true,
-						attachments: true
-					}).then(function (result) {
-						//Convert Date to Date Object
-						jQuery.each(result.rows, function (index, value) {
-							value.doc.DueDate = new Date(value.doc.DueDate);
-						});
-						oJSONModel.setData({
-							"ToDos": result.rows
-						});
-					});
-
-				}.bind(this),
-				error: function () {}
-			});
+			//Load ToDos from Server, or if offline from local DB
+			this.fnLoadToDosFromServer();
 		},
-		fnSyncFailure: function (oError) {
+
+		//Sync failure. What to do now?		
+		fnSyncFailure: function () {
 			this._BusyDialog.close();
 			//Inform the user
 		},
@@ -447,5 +391,4 @@ sap.ui.define([
 			evt.getSource().getParent().close();
 		}
 	});
-
 });
