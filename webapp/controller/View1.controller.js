@@ -75,7 +75,12 @@ sap.ui.define([
 			}).catch(function(err) {
 				console.log(err);
 			});
-
+			
+			transactionDb.compact().then(function(result) {
+				// handle result
+			}).catch(function(err) {
+				console.log(err);
+			});
 			//Clear count
 			this.fnMarkSyncComplete();
 
@@ -211,8 +216,8 @@ sap.ui.define([
 
 					//From local db store them into JSON model
 					db.allDocs({
-						include_docs: true,
-						attachments: true
+						include_docs: true
+					//	attachments: true
 					}).then(function(result) {
 						//Convert Date to Date Object
 						jQuery.each(result.rows, function(index, value) {
